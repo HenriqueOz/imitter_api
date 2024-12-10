@@ -31,7 +31,7 @@ func assignRoutes(mux *http.ServeMux) *http.ServeMux {
 
 func assignMiddlwares(handler http.Handler) http.Handler {
 	// TODO do the middleware assigning stuff
-	handler = middlewares.RequestLogger(handler)
+	handler = middlewares.RequestLoggerMiddleware(handler)
 	return handler
 }
 

@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"net"
 	"os"
 
 	"github.com/go-sql-driver/mysql"
@@ -17,7 +18,7 @@ func initConfig() {
 		connectionConfig = &mysql.Config{
 			User:                 os.Getenv("DBUSER"),
 			Passwd:               os.Getenv("DBPASSWORD"),
-			Addr:                 os.Getenv("DBHOST") + ":" + os.Getenv("DBPORT"),
+			Addr:                 net.JoinHostPort(os.Getenv("DBHOST"), os.Getenv("DBPORT")),
 			DBName:               os.Getenv("DBNAME"),
 			Net:                  "tcp",
 			AllowNativePasswords: true,
