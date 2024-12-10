@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 
-	db "sm.com/m/app/database"
-	httpserver "sm.com/m/app/http_server"
+	db "sm.com/m/src/app/database"
+	httpserver "sm.com/m/src/app/http_server"
 )
 
 func Run() {

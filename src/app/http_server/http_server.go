@@ -6,32 +6,37 @@ import (
 	"os"
 	"time"
 
-	"sm.com/m/app/handlers"
-	"sm.com/m/app/middlewares"
+	"sm.com/m/src/app/handlers"
+	"sm.com/m/src/app/middlewares"
 )
 
 func NewServer() *http.Server {
 	mux := http.NewServeMux()
-
 	mux = assignRoutes(mux)
+	handler := assignMiddlwares(mux)
 
-	var handler http.Handler = mux
-	handler = assignMiddlwares(handler)
-
-	var server *http.Server = assignServer(handler)
-
-	return server
+	return assignServer(handler)
 }
 
 func assignRoutes(mux *http.ServeMux) *http.ServeMux {
 	// TODO do the routes assigning stuff
-	mux.HandleFunc("/", handlers.HomeHandler)
+	mux.HandleFunc("GET /", handlers.HomeHandler)
 	return mux
 }
 
 func assignMiddlwares(handler http.Handler) http.Handler {
-	// TODO do the middleware assigning stuff
-	handler = middlewares.RequestLoggerMiddleware(handler)
+	return chainMiddlewares(
+		handler,
+		middlewares.RequestLoggerMiddleware,
+		middlewares.ContentTypeMiddleware,
+		middlewares.CorsMiddleware,
+	)
+}
+
+func chainMiddlewares(handler http.Handler, middlewares ...middlewares.Middleware) http.Handler {
+	for _, middleware := range middlewares {
+		handler = middleware(handler)
+	}
 	return handler
 }
 

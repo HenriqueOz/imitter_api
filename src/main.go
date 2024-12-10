@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	dotenv "github.com/joho/godotenv"
-	"sm.com/m/app"
+	"sm.com/m/src/app"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 }
 
 func LoadEnvironment() (err error) {
-	err = dotenv.Load()
+	err = dotenv.Load("../.env")
 	if err != nil {
 		return
 	}
