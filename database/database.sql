@@ -1,5 +1,3 @@
-
-DROP DATABASE sm_database;
 CREATE DATABASE sm_database;
 
 USE sm_database;
