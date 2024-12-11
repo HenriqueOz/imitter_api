@@ -10,8 +10,6 @@ import (
 	"sm.com/m/src/app/middlewares"
 )
 
-// TODO fix not found behavior
-
 func NewServer() *http.Server {
 	mux := http.NewServeMux()
 	mux = assignRoutes(mux)
@@ -21,7 +19,6 @@ func NewServer() *http.Server {
 }
 
 func assignRoutes(mux *http.ServeMux) *http.ServeMux {
-	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("POST /signin", handlers.SignInHandler)
 	return mux
 }
