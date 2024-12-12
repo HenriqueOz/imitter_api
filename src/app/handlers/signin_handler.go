@@ -10,28 +10,29 @@ import (
 )
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
-	if !ValidateRequiredFields(w, r.Body, []string{
-		"name",
-		"email",
-		"password",
-	}) {
-		return
-	}
+	var payload models.UserSignIn
 
-	var model models.UserSignIn
-	err := json.NewDecoder(r.Body).Decode(&model)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		fmt.Printf("error decoding body: %v", err)
 		SendError(w, &RequestError{
+			Message:    ErrUnexpectedError.Error(),
 			Err:        ErrInternalServerError,
 			StatusCode: http.StatusInternalServerError,
-			Message:    ErrUnexpectedError.Error(),
 		})
 		return
 	}
 
-	err = createUser(model)
-	if err != nil {
+	if missing := getSignInPayloadMissingFields(payload); len(missing) > 0 {
+		SendErrorWithDetails(w, &RequestError{
+			Message:    ErrMissingRequiredFields.Error(),
+			Err:        ErrBadRequest,
+			StatusCode: http.StatusBadRequest,
+			Details:    missing,
+		})
+		return
+	}
+
+	if err := createUser(payload); err != nil {
 		fmt.Printf("error creating user: %v", err)
 		SendError(w, &RequestError{
 			Err:        ErrInternalServerError,
@@ -45,6 +46,22 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"success": "user created",
 	})
+}
+
+func getSignInPayloadMissingFields(payload models.UserSignIn) (missing map[string]string) {
+	missing = make(map[string]string)
+
+	if payload.Email == "" {
+		missing["email"] = "required"
+	}
+	if payload.Name == "" {
+		missing["name"] = "required"
+	}
+	if payload.Password == "" {
+		missing["password"] = "required"
+	}
+
+	return missing
 }
 
 func createUser(model models.UserSignIn) error {
