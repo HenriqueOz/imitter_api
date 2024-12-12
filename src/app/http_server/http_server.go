@@ -13,7 +13,7 @@ import (
 func NewServer() *http.Server {
 	mux := http.NewServeMux()
 	mux = assignRoutes(mux)
-	handler := assignMiddlwares(mux)
+	handler := assignMiddlewares(mux)
 
 	return assignServer(handler)
 }
@@ -23,7 +23,7 @@ func assignRoutes(mux *http.ServeMux) *http.ServeMux {
 	return mux
 }
 
-func assignMiddlwares(handler http.Handler) http.Handler {
+func assignMiddlewares(handler http.Handler) http.Handler {
 	return chainMiddlewares(
 		handler,
 		middlewares.RequestLoggerMiddleware,

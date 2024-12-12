@@ -7,35 +7,36 @@ import (
 
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
-	"sm.com/m/src/app/utils"
 )
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
-	var payload map[string]any = map[string]any{}
+	if !ValidateRequiredFields(w, r.Body, []string{
+		"name",
+		"email",
+		"password",
+	}) {
+		return
+	}
 
-	err := json.NewDecoder(r.Body).Decode(&payload)
+	var model models.UserSignIn
+	err := json.NewDecoder(r.Body).Decode(&model)
 	if err != nil {
 		fmt.Printf("error decoding body: %v", err)
 		SendError(w, &RequestError{
-			err:        ErrInternalServerError,
-			statusCode: http.StatusInternalServerError,
+			Err:        ErrInternalServerError,
+			StatusCode: http.StatusInternalServerError,
+			Message:    ErrUnexpectedError.Error(),
 		})
 		return
 	}
 
-	missing := getMissingFields(payload)
-	if len(missing) > 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(missing)
-		return
-	}
-
-	err = createUser(payload)
+	err = createUser(model)
 	if err != nil {
 		fmt.Printf("error creating user: %v", err)
 		SendError(w, &RequestError{
-			err:        ErrInternalServerError,
-			statusCode: http.StatusInternalServerError,
+			Err:        ErrInternalServerError,
+			StatusCode: http.StatusInternalServerError,
+			Message:    ErrUnexpectedError.Error(),
 		})
 		return
 	}
@@ -46,16 +47,10 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func getMissingFields(payload map[string]any) map[string]string {
-	return utils.VerifyRequiredFields([]string{
-		"name", "email", "password",
-	}, payload)
-}
-
-func createUser(payload map[string]any) error {
+func createUser(model models.UserSignIn) error {
 	return repositories.CreateUser(models.UserSignIn{
-		Name:     payload["name"].(string),
-		Email:    payload["email"].(string),
-		Password: payload["password"].(string),
+		Name:     model.Name,
+		Email:    model.Email,
+		Password: model.Password,
 	})
 }
