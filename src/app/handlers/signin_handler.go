@@ -22,7 +22,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if missing := getSignInPayloadMissingFields(payload); len(missing) > 0 {
+	if missing := GetMissingFields([]string{"name", "password", "email"}, payload); len(missing) > 0 {
 		SendErrorWithDetails(w, &RequestError{
 			Message:    ErrMissingRequiredFields.Error(),
 			Err:        ErrBadRequest,
@@ -46,22 +46,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"success": "user created",
 	})
-}
-
-func getSignInPayloadMissingFields(payload models.UserSignIn) (missing map[string]string) {
-	missing = make(map[string]string)
-
-	if payload.Email == "" {
-		missing["email"] = "required"
-	}
-	if payload.Name == "" {
-		missing["name"] = "required"
-	}
-	if payload.Password == "" {
-		missing["password"] = "required"
-	}
-
-	return missing
 }
 
 func createUser(model models.UserSignIn) error {

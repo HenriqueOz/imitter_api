@@ -6,7 +6,7 @@ type RequestError struct {
 	StatusCode int
 	Err        error
 	Message    string
-	Details    map[string]string
+	Details    map[string]any
 }
 
 var (

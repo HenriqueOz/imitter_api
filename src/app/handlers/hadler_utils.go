@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"reflect"
+	"strings"
 
 	"github.com/fatih/structs"
 )
@@ -33,13 +35,15 @@ func SendErrorWithDetails(w http.ResponseWriter, requestError *RequestError) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func getMissingFields(requiredFields []string, model interface{}) (missing map[string]any) {
+func GetMissingFields(requiredFields []string, model interface{}) (missing map[string]any) {
 	missing = make(map[string]any)
 	mappedStruct := structs.Map(model)
 
 	for _, field := range requiredFields {
-		if _, ok := mappedStruct[field]; !ok {
-			missing[field] = "required"
+		value := reflect.ValueOf(mappedStruct[field])
+
+		if value.IsZero() {
+			missing[strings.ToLower(field)] = "required"
 		}
 	}
 
