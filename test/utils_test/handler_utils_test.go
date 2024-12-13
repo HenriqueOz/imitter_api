@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"sm.com/m/src/app/handlers"
+	"sm.com/m/src/app/utils"
 )
 
 func TestGetRequiredFields(t *testing.T) {
@@ -19,7 +19,7 @@ func TestGetRequiredFields(t *testing.T) {
 		input := &InputStruct{Name: "josh", Password: "123"}
 		expected := map[string]any{"email": "required"}
 
-		result := handlers.GetMissingFields(requiredFields, input)
+		result := utils.GetMissingFields(requiredFields, input)
 
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("VerifyRequiredFields(%q, %q) = %q; want %q;", requiredFields, input, result, expected)
@@ -31,7 +31,7 @@ func TestGetRequiredFields(t *testing.T) {
 		input := &InputStruct{Name: "josh"}
 		expected := map[string]any{"email": "required", "password": "required"}
 
-		result := handlers.GetMissingFields(requiredFields, input)
+		result := utils.GetMissingFields(requiredFields, input)
 
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("VerifyRequiredFields(%q, %q) = %q; want %q;", requiredFields, input, result, expected)
@@ -43,7 +43,7 @@ func TestGetRequiredFields(t *testing.T) {
 		input := &InputStruct{}
 		expected := map[string]any{"name": "required", "email": "required", "password": "required"}
 
-		result := handlers.GetMissingFields(requiredFields, input)
+		result := utils.GetMissingFields(requiredFields, input)
 
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("VerifyRequiredFields(%q, %q) = %q; want %q;", requiredFields, input, result, expected)
@@ -55,7 +55,7 @@ func TestGetRequiredFields(t *testing.T) {
 		input := &InputStruct{Name: "josh", Email: "josh@gmail.com", Password: "123"}
 		expected := map[string]any{}
 
-		result := handlers.GetMissingFields(requiredFields, input)
+		result := utils.GetMissingFields(requiredFields, input)
 
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("VerifyRequiredFields(%q, %q) = %q; want %q;", requiredFields, input, result, expected)

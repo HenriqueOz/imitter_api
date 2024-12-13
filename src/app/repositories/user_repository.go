@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	apperrors "sm.com/m/src/app/app_errors"
 	db "sm.com/m/src/app/database"
 	"sm.com/m/src/app/models"
 )
@@ -20,14 +21,14 @@ func CreateUser(userSignIn *models.UserSignIn) (err error) {
 	if err != nil {
 		fmt.Printf("error inserting user in the table: %v\n", err)
 		if strings.Contains(err.Error(), "user.UC_email") {
-			return ErrEmailAlreadyInUse
+			return apperrors.ErrEmailAlreadyInUse
 		}
 
 		if strings.Contains(err.Error(), "user.UC_name") {
-			return ErrNameAlreadyInUse
+			return apperrors.ErrNameAlreadyInUse
 		}
 
-		return ErrCreatingUser
+		return apperrors.ErrCreatingUser
 	}
 
 	fmt.Printf("result: %v\n", result)

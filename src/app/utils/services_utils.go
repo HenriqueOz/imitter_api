@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"regexp"
 	"unicode"
 
@@ -12,10 +13,12 @@ func ValidateEmail(email string) bool {
 	return ok
 }
 
-func ValidatePassword(password string) bool {
-	if len(password) < int(constants.PASSWORD_MIN_LENGTH) ||
-		len(password) > int(constants.PASSWORD_MAX_LENGTH) {
-		return false
+func ValidatePassword(password string) (bool, error) {
+	if len(password) < int(constants.PASSWORD_MIN_LENGTH) {
+		return false, errors.New("password too short")
+	}
+	if len(password) > int(constants.PASSWORD_MAX_LENGTH) {
+		return false, errors.New("password too long")
 	}
 
 	var upper, lower, special, number int
@@ -31,7 +34,7 @@ func ValidatePassword(password string) bool {
 			special++
 		}
 	}
-	return upper >= 1 && lower >= 1 && special >= 1 && number >= 1
+	return upper >= 1 && lower >= 1 && special >= 1 && number >= 1, nil
 }
 
 func ValidateUsername(username string) bool {

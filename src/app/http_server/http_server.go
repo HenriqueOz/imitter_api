@@ -10,6 +10,8 @@ import (
 	"sm.com/m/src/app/middlewares"
 )
 
+type Middleware func(next http.Handler) http.Handler
+
 func NewServer() *http.Server {
 	mux := http.NewServeMux()
 	mux = assignRoutes(mux)
@@ -32,7 +34,7 @@ func assignMiddlewares(handler http.Handler) http.Handler {
 	)
 }
 
-func chainMiddlewares(handler http.Handler, middlewares ...middlewares.Middleware) http.Handler {
+func chainMiddlewares(handler http.Handler, middlewares ...Middleware) http.Handler {
 	for _, middleware := range middlewares {
 		handler = middleware(handler)
 	}

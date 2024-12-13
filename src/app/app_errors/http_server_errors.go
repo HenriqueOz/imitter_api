@@ -1,13 +1,6 @@
-package handlers
+package apperrors
 
 import "errors"
-
-type RequestError struct {
-	StatusCode int
-	Err        error
-	Message    string
-	Details    map[string]any
-}
 
 var (
 	ErrInternalServerError   error = errors.New("internal server error")

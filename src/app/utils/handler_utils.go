@@ -1,4 +1,4 @@
-package handlers
+package utils
 
 import (
 	"encoding/json"
@@ -8,6 +8,13 @@ import (
 
 	"github.com/fatih/structs"
 )
+
+type RequestError struct {
+	StatusCode int
+	Err        error
+	Message    string
+	Details    map[string]any
+}
 
 func SendError(w http.ResponseWriter, requestError *RequestError) {
 	response := map[string]string{
