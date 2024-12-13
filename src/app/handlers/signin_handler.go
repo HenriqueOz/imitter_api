@@ -6,8 +6,13 @@ import (
 	"net/http"
 
 	"sm.com/m/src/app/models"
-	"sm.com/m/src/app/repositories"
+	"sm.com/m/src/app/services"
 )
+
+type SignInSuccessPayload struct {
+	Name  string
+	Email string
+}
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	var payload models.UserSignIn
@@ -22,7 +27,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if missing := GetMissingFields([]string{"name", "password", "email"}, payload); len(missing) > 0 {
+	if missing := GetMissingFields([]string{"Name", "Password", "Email"}, payload); len(missing) > 0 {
 		SendErrorWithDetails(w, &RequestError{
 			Message:    ErrMissingRequiredFields.Error(),
 			Err:        ErrBadRequest,
@@ -37,19 +42,22 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		SendError(w, &RequestError{
 			Err:        ErrInternalServerError,
 			StatusCode: http.StatusInternalServerError,
-			Message:    ErrUnexpectedError.Error(),
+			Message:    err.Error(),
 		})
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
-		"success": "user created",
-	})
+	SendSuccess(w, struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}{
+		Name:  payload.Name,
+		Email: payload.Email,
+	}, http.StatusCreated)
 }
 
 func createUser(model models.UserSignIn) error {
-	return repositories.CreateUser(models.UserSignIn{
+	return services.CreateUser(&models.UserSignIn{
 		Name:     model.Name,
 		Email:    model.Email,
 		Password: model.Password,

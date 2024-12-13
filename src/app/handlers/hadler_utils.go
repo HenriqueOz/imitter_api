@@ -10,8 +10,6 @@ import (
 )
 
 func SendError(w http.ResponseWriter, requestError *RequestError) {
-	w.WriteHeader(requestError.StatusCode)
-
 	response := map[string]string{
 		"error":   requestError.Err.Error(),
 		"message": requestError.Message,
@@ -35,14 +33,22 @@ func SendErrorWithDetails(w http.ResponseWriter, requestError *RequestError) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func SendSuccess(w http.ResponseWriter, payload interface{}, status int) {
+	if status == 0 {
+		status = http.StatusOK
+	}
+
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(payload)
+}
+
 func GetMissingFields(requiredFields []string, model interface{}) (missing map[string]any) {
 	missing = make(map[string]any)
 	mappedStruct := structs.Map(model)
 
 	for _, field := range requiredFields {
 		value := reflect.ValueOf(mappedStruct[field])
-
-		if value.IsZero() {
+		if !value.IsValid() || value.IsZero() {
 			missing[strings.ToLower(field)] = "required"
 		}
 	}
