@@ -1,26 +1,23 @@
 package services
 
 import (
-	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
 
 func CreateUser(userSignIn *models.UserSignIn) error {
-	if !utils.ValidateEmail(userSignIn.Email) {
-		return apperrors.ErrInvalidEmail
+	if err := utils.ValidateEmail(userSignIn.Email); err != nil {
+		return err
 	}
 
-	// if !utils.ValidatePassword(userSignIn.Password) {
-	// 	return apperrors.ErrIvalidPassword
-	// }
-
-	if !utils.ValidateUsername(userSignIn.Name) {
-		return apperrors.ErrInvalidName
+	if err := utils.ValidatePassword(userSignIn.Password); err != nil {
+		return err
 	}
 
-	userSignIn.Password = utils.HashPassword(userSignIn.Password)
+	if err := utils.ValidateUsername(userSignIn.Name); err != nil {
+		return err
+	}
 
 	return repositories.CreateUser(userSignIn)
 }

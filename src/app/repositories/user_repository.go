@@ -7,6 +7,7 @@ import (
 	apperrors "sm.com/m/src/app/app_errors"
 	db "sm.com/m/src/app/database"
 	"sm.com/m/src/app/models"
+	"sm.com/m/src/app/utils"
 )
 
 func CreateUser(userSignIn *models.UserSignIn) (err error) {
@@ -15,7 +16,7 @@ func CreateUser(userSignIn *models.UserSignIn) (err error) {
 	`,
 		userSignIn.Name,
 		userSignIn.Email,
-		userSignIn.Password,
+		utils.HashPassword(userSignIn.Password),
 	)
 
 	if err != nil {

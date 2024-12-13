@@ -1,24 +1,26 @@
 package utils
 
 import (
-	"errors"
 	"regexp"
 	"unicode"
 
+	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 )
 
-func ValidateEmail(email string) bool {
-	ok, _ := regexp.MatchString(`^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$`, email)
-	return ok
+func ValidateEmail(email string) error {
+	if ok, _ := regexp.MatchString(`^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$`, email); !ok {
+		return apperrors.ErrInvalidEmail
+	}
+	return nil
 }
 
-func ValidatePassword(password string) (bool, error) {
+func ValidatePassword(password string) error {
 	if len(password) < int(constants.PASSWORD_MIN_LENGTH) {
-		return false, errors.New("password too short")
+		return apperrors.ErrShortPassword
 	}
 	if len(password) > int(constants.PASSWORD_MAX_LENGTH) {
-		return false, errors.New("password too long")
+		return apperrors.ErrLongPassword
 	}
 
 	var upper, lower, special, number int
@@ -34,26 +36,34 @@ func ValidatePassword(password string) (bool, error) {
 			special++
 		}
 	}
-	return upper >= 1 && lower >= 1 && special >= 1 && number >= 1, nil
+
+	if !(upper >= 1 && lower >= 1 && special >= 1 && number >= 1) {
+		return apperrors.ErrIvalidPassword
+	}
+	return nil
 }
 
-func ValidateUsername(username string) bool {
-
-	if len(username) < int(constants.USER_NAME_MIN_LENGTH) ||
-		len(username) > int(constants.USER_NAME_MAX_LENGTH) {
-		return false
+func ValidateUsername(username string) error {
+	if len(username) < int(constants.USER_NAME_MIN_LENGTH) {
+		return apperrors.ErrShortName
+	}
+	if len(username) > int(constants.USER_NAME_MAX_LENGTH) {
+		return apperrors.ErrLongName
 	}
 
 	for _, char := range username {
 		if !unicode.IsLetter(char) && !unicode.IsNumber(char) && char != '_' {
-			return false
+			return apperrors.ErrInvalidName
 		}
 	}
 
-	return true
+	return nil
 }
 
 func HashPassword(password string) string {
-	//TODO implement
+	// TODO adjust encoding
+	// _, err := sha256.New().Write([]byte(password))
+
+	// return hash
 	return ""
 }
