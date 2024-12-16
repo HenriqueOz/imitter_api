@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/sha256"
 	"regexp"
 	"unicode"
 
@@ -37,10 +38,10 @@ func ValidatePassword(password string) error {
 		}
 	}
 
-	if !(upper >= 1 && lower >= 1 && special >= 1 && number >= 1) {
-		return apperrors.ErrIvalidPassword
+	if upper >= 1 && lower >= 1 && special >= 1 && number >= 1 {
+		return nil
 	}
-	return nil
+	return apperrors.ErrIvalidPassword
 }
 
 func ValidateUsername(username string) error {
@@ -61,9 +62,11 @@ func ValidateUsername(username string) error {
 }
 
 func HashPassword(password string) string {
-	// TODO adjust encoding
-	// _, err := sha256.New().Write([]byte(password))
+	hasher := sha256.New()
+	hasher.Write([]byte(password))
 
-	// return hash
-	return ""
+	var hash []byte
+	hasher.Sum(hash)
+
+	return string(hash)
 }
