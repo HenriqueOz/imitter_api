@@ -55,9 +55,11 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateSignInPayload(payload models.UserSignIn) (map[string]any, error) {
-	missing := utils.GetMissingFields([]string{"Name", "Password", "Email"}, payload)
-	if len(missing) > 0 {
-		return missing, apperrors.ErrMissingRequiredFields
+	missing, _ := utils.GetMissingFields([]string{"Name", "Password", "Email"}, payload)
+	if missing != nil {
+		if len(missing) > 0 {
+			return missing, apperrors.ErrMissingRequiredFields
+		}
 	}
 	return nil, nil
 }

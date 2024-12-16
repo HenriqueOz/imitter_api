@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/structs"
+	apperrors "sm.com/m/src/app/app_errors"
 )
 
 type RequestError struct {
@@ -49,9 +50,13 @@ func SendSuccess(w http.ResponseWriter, payload interface{}, status int) {
 	json.NewEncoder(w).Encode(payload)
 }
 
-func GetMissingFields(requiredFields []string, model interface{}) (missing map[string]any) {
+func GetMissingFields(requiredFields []string, data interface{}) (missing map[string]any, err error) {
+	if !structs.IsStruct(data) {
+		return nil, apperrors.ErrIsNotStruct
+	}
+
 	missing = make(map[string]any)
-	mappedStruct := structs.Map(model)
+	mappedStruct := structs.Map(data)
 
 	for _, field := range requiredFields {
 		value := reflect.ValueOf(mappedStruct[field])
@@ -60,5 +65,5 @@ func GetMissingFields(requiredFields []string, model interface{}) (missing map[s
 		}
 	}
 
-	return missing
+	return missing, nil
 }
