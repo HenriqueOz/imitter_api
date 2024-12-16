@@ -10,6 +10,13 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
+type InputSendSuccess struct {
+}
+
+func TestSendSuccess(t *testing.T) {
+	// result := utils.SendSuccess()
+}
+
 type InputGetRequiredFields struct {
 	RequiredFields []string
 	Data           interface{}

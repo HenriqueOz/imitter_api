@@ -41,13 +41,18 @@ func SendErrorWithDetails(w http.ResponseWriter, requestError *RequestError) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func SendSuccess(w http.ResponseWriter, payload interface{}, status int) {
+func SendSuccess(w http.ResponseWriter, payload interface{}, status int) error {
+	if !structs.IsStruct(payload) {
+		//TODO
+	}
+
 	if status == 0 {
 		status = http.StatusOK
 	}
 
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(payload)
+	return nil
 }
 
 func GetMissingFields(requiredFields []string, data interface{}) (missing map[string]any, err error) {

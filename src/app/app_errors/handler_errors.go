@@ -7,4 +7,5 @@ var (
 	ErrBadRequest            error = errors.New("bad request")
 	ErrUnexpectedError       error = errors.New("unexpected error")
 	ErrMissingRequiredFields error = errors.New("missing required fields")
+	ErrEmptyPayload          error = errors.New("empty payload")
 )
