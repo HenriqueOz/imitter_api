@@ -10,13 +10,13 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func CreateUser(userSignIn *models.UserSignIn) (err error) {
+func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 	result, err := db.Conn.Exec(`
 		INSERT INTO user(name, email, password) VALUES(?, ?, ?)
 	`,
-		userSignIn.Name,
-		userSignIn.Email,
-		utils.HashPassword(userSignIn.Password),
+		UserSignUp.Name,
+		UserSignUp.Email,
+		utils.HashPassword(UserSignUp.Password),
 	)
 
 	if err != nil {

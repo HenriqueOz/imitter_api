@@ -43,7 +43,7 @@ func SendErrorWithDetails(w http.ResponseWriter, requestError *RequestError) {
 
 func SendSuccess(w http.ResponseWriter, payload interface{}, status int) error {
 	if !structs.IsStruct(payload) {
-		//TODO
+		return apperrors.ErrIsNotStruct
 	}
 
 	if status == 0 {

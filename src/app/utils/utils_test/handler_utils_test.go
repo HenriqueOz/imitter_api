@@ -1,7 +1,9 @@
 package utils_test
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
@@ -11,10 +13,37 @@ import (
 )
 
 type InputSendSuccess struct {
+	recorder *httptest.ResponseRecorder
+	payload  interface{}
+	status   int
 }
 
 func TestSendSuccess(t *testing.T) {
-	// result := utils.SendSuccess()
+	input := InputSendSuccess{
+		recorder: httptest.NewRecorder(),
+		payload: models.UserSignUp{
+			Name: "Josh", Email: "josh@gmail.com", Password: "123",
+		},
+		status: 200,
+	}
+	var want error = nil
+
+	err := utils.SendSuccess(input.recorder, input.payload, input.status)
+
+	if err != nil {
+		t.Errorf("ERROR: should not return an error\nINPUT: %v\nWANT: %v\nGOT: %v\n", input, want, err)
+	}
+
+	recorderStatusCode := input.recorder.Result().StatusCode
+	if recorderStatusCode != input.status {
+		t.Errorf("ERROR: status code is different \nINPUT: %v\nWANT: %v\nGOT: %v\n", input, input.status, recorderStatusCode)
+	}
+
+	var decodedBody models.UserSignUp
+	json.Unmarshal(input.recorder.Body.Bytes(), &decodedBody)
+	if !reflect.DeepEqual(decodedBody, input.payload) {
+		t.Errorf("ERROR: output payload is different \nINPUT: %v\nWANT: %v\nGOT: %v\n", input, input.payload, decodedBody)
+	}
 }
 
 type InputGetRequiredFields struct {
@@ -26,7 +55,7 @@ func TestGetRequiredFields(t *testing.T) {
 	t.Run("Should return one missing field", func(t *testing.T) {
 		input := InputGetRequiredFields{
 			RequiredFields: []string{"Name", "Email", "Password"},
-			Data:           models.UserSignIn{Name: "josh", Password: "123"},
+			Data:           models.UserSignUp{Name: "josh", Password: "123"},
 		}
 		want := map[string]any{"email": "required"}
 
@@ -40,7 +69,7 @@ func TestGetRequiredFields(t *testing.T) {
 	t.Run("Should return two missing fields", func(t *testing.T) {
 		input := InputGetRequiredFields{
 			RequiredFields: []string{"Name", "Email", "Password"},
-			Data:           models.UserSignIn{Name: "josh"},
+			Data:           models.UserSignUp{Name: "josh"},
 		}
 		want := map[string]any{"email": "required", "password": "required"}
 
@@ -54,7 +83,7 @@ func TestGetRequiredFields(t *testing.T) {
 	t.Run("Should return all fields as missing", func(t *testing.T) {
 		input := InputGetRequiredFields{
 			RequiredFields: []string{"Name", "Email", "Password"},
-			Data:           models.UserSignIn{},
+			Data:           models.UserSignUp{},
 		}
 		want := map[string]any{"name": "required", "email": "required", "password": "required"}
 
@@ -68,7 +97,7 @@ func TestGetRequiredFields(t *testing.T) {
 	t.Run("Should not return missing fields", func(t *testing.T) {
 		input := InputGetRequiredFields{
 			RequiredFields: []string{"Name", "Email", "Password"},
-			Data:           models.UserSignIn{Name: "josh", Email: "josh@gmail.com", Password: "123"},
+			Data:           models.UserSignUp{Name: "josh", Email: "josh@gmail.com", Password: "123"},
 		}
 		want := map[string]any{}
 

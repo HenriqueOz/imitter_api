@@ -6,18 +6,18 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func CreateUser(userSignIn *models.UserSignIn) error {
-	if err := utils.ValidateEmail(userSignIn.Email); err != nil {
+func CreateUser(UserSignUp *models.UserSignUp) error {
+	if err := utils.ValidateEmail(UserSignUp.Email); err != nil {
 		return err
 	}
 
-	if err := utils.ValidatePassword(userSignIn.Password); err != nil {
+	if err := utils.ValidatePassword(UserSignUp.Password); err != nil {
 		return err
 	}
 
-	if err := utils.ValidateUsername(userSignIn.Name); err != nil {
+	if err := utils.ValidateUsername(UserSignUp.Name); err != nil {
 		return err
 	}
 
-	return repositories.CreateUser(userSignIn)
+	return repositories.CreateUser(UserSignUp)
 }

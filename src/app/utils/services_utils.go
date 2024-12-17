@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"regexp"
 	"unicode"
 
@@ -62,11 +63,6 @@ func ValidateUsername(username string) error {
 }
 
 func HashPassword(password string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(password))
-
-	var hash []byte
-	hasher.Sum(hash)
-
-	return string(hash)
+	hash := sha256.Sum256([]byte(password))
+	return hex.EncodeToString(hash[:])
 }
