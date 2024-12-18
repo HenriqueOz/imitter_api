@@ -20,7 +20,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	var payload models.UserSignUp
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		fmt.Printf("error decoding body: %v", err)
+		fmt.Printf("error decoding body: %v\n", err)
 		utils.SendError(w, &utils.RequestError{
 			Message:    apperrors.ErrUnexpectedError.Error(),
 			Err:        apperrors.ErrInternalServerError,
@@ -39,7 +39,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := createUser(payload); err != nil {
-		fmt.Printf("error creating user: %v", err)
+		fmt.Printf("error creating user: %v\n", err)
 		utils.SendError(w, &utils.RequestError{
 			Err:        apperrors.ErrInternalServerError,
 			StatusCode: http.StatusInternalServerError,

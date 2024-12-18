@@ -21,7 +21,8 @@ func NewServer() *http.Server {
 }
 
 func assignRoutes(mux *http.ServeMux) *http.ServeMux {
-	mux.HandleFunc("POST /signin", handlers.SignUpHandler)
+	mux.HandleFunc("POST /signup", handlers.SignUpHandler)
+	mux.HandleFunc("POST /signin", handlers.SignInHandler)
 	return mux
 }
 
@@ -31,6 +32,7 @@ func assignMiddlewares(handler http.Handler) http.Handler {
 		middlewares.RequestLoggerMiddleware,
 		middlewares.ContentTypeMiddleware,
 		middlewares.CorsMiddleware,
+		middlewares.AuthMiddleware,
 	)
 }
 
