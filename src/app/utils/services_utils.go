@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 
@@ -73,11 +74,11 @@ func HashPassword(password string) string {
 func GenerateJwtToken(userId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss": "",
-		"sub": userId,
+		"sub": strconv.Itoa(userId),
 		"aud": "",
-		"exp": "",
-		"nbf": time.Now().UnixMilli(),
-		"iat": "",
+		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		"nbf": jwt.NewNumericDate(time.Now()),
+		"iat": jwt.NewNumericDate(time.Now()),
 		"jti": "",
 	})
 

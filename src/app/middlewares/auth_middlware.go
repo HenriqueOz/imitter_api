@@ -48,7 +48,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		sub, _ := token.Claims.GetSubject()
-		r.Header.Add("id", sub)
+		r.Header.Add("Id", sub)
 
 		next.ServeHTTP(w, r)
 	})

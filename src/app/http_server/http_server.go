@@ -23,6 +23,7 @@ func NewServer() *http.Server {
 func assignRoutes(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("POST /signup", handlers.SignUpHandler)
 	mux.HandleFunc("POST /signin", handlers.SignInHandler)
+	mux.HandleFunc("GET /test", handlers.TestHandler)
 	return mux
 }
 
