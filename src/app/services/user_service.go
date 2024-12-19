@@ -34,7 +34,7 @@ func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
 }
 
 func SignInWithName(name string, password string) (*models.UserAuth, error) {
-	user, err := repositories.SignInWithEmail(name, password)
+	user, err := repositories.SignInWithName(name, password)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func GetUserAuth(user *models.UserSignIn) (*models.UserAuth, error) {
 	}
 
 	return &models.UserAuth{
-		AccessToken:  "Bearer " + tokenString,
-		RefreshToken: "Bearer ",
+		AccessToken: "Bearer " + tokenString,
+		// RefreshToken: "Bearer ",
 	}, nil
 }

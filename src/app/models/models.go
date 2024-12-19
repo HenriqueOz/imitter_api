@@ -14,6 +14,6 @@ type UserSignIn struct {
 }
 
 type UserAuth struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
+	// RefreshToken string `json:"refresh_token"`
 }

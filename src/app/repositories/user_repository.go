@@ -39,7 +39,7 @@ func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 
 func SignInWithEmail(email string, password string) (*models.UserSignIn, error) {
 	result, err := db.Conn.Query(`
-		SELECT * FROM user WHERE name = ? AND password = ?
+		SELECT * FROM user WHERE email = ? AND password = ?
 	`, email, password)
 
 	if err != nil {

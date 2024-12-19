@@ -29,7 +29,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		var tokenString string = r.Header["Authorization"][0]
-
 		splitTokenString := strings.Split(tokenString, " ")
 
 		if len(splitTokenString) < 2 || strings.Compare(splitTokenString[0], "Bearer") != 0 {
@@ -37,21 +36,26 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token, err := jwt.Parse(splitTokenString[1], func(t *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWTSECRET")), nil
-		})
-
-		if err != nil {
-			fmt.Printf("error parsing token: %v\n", err)
-			sendInvalidTokenError(w)
-			return
+		if token := parseToken(w, splitTokenString[1]); token != nil {
+			sub, _ := token.Claims.GetSubject()
+			r.Header.Add("Id", sub)
 		}
-
-		sub, _ := token.Claims.GetSubject()
-		r.Header.Add("Id", sub)
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func parseToken(w http.ResponseWriter, tokenString string) *jwt.Token {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWTSECRET")), nil
+	})
+
+	if err != nil {
+		fmt.Printf("error parsing token: %v\n", err)
+		sendInvalidTokenError(w)
+		return nil
+	}
+	return token
 }
 
 func sendInvalidTokenError(w http.ResponseWriter) {
