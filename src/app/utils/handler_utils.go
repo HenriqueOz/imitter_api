@@ -72,3 +72,20 @@ func GetMissingFields(requiredFields []string, data interface{}) (missing map[st
 
 	return missing, nil
 }
+
+func SendMissingFieldsError(w http.ResponseWriter, missing map[string]any) {
+	SendErrorWithDetails(w, &RequestError{
+		StatusCode: 400,
+		Err:        apperrors.ErrBadRequest,
+		Message:    apperrors.ErrMissingRequiredFields.Error(),
+		Details:    missing,
+	})
+}
+
+func SendInternalServerError(w http.ResponseWriter) {
+	SendError(w, &RequestError{
+		StatusCode: 500,
+		Err:        apperrors.ErrInternalServerError,
+		Message:    apperrors.ErrUnexpectedError.Error(),
+	})
+}

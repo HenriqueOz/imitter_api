@@ -3,5 +3,6 @@ package apperrors
 import "errors"
 
 var (
-	ErrMissingAuth error = errors.New("missing auth token")
+	ErrInvalidToken error = errors.New("invalid token")
+	ErrForbidden    error = errors.New("forbidden")
 )

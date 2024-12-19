@@ -19,6 +19,8 @@ func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 		utils.HashPassword(UserSignUp.Password),
 	)
 
+	fmt.Printf("%v\n", result)
+
 	if err != nil {
 		fmt.Printf("error inserting user in the table: %v\n", err)
 		if strings.Contains(err.Error(), "user.UC_email") {
@@ -32,7 +34,44 @@ func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 		return apperrors.ErrCreatingUser
 	}
 
-	fmt.Printf("result: %v\n", result)
-
 	return nil
+}
+
+func SignInWithEmail(email string, password string) (*models.UserSignIn, error) {
+	result, err := db.Conn.Query(`
+		SELECT * FROM user WHERE name = ? AND password = ?
+	`, email, password)
+
+	if err != nil {
+		fmt.Printf("error signin with name: %v", err)
+		return nil, apperrors.ErrSignIn
+	}
+
+	if !result.Next() {
+		fmt.Printf("error signin with name: %v", err)
+		return nil, apperrors.ErrSignIn
+	}
+
+	user := &models.UserSignIn{}
+	result.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+
+	return user, nil
+}
+
+func SignInWithName(name string, password string) (*models.UserSignIn, error) {
+	result, err := db.Conn.Query(`
+		SELECT * FROM user WHERE name = ? AND password = ?
+	`, name, password)
+
+	if err != nil {
+		fmt.Printf("error signin with name: %v", err)
+		return nil, apperrors.ErrSignIn
+	}
+
+	user := &models.UserSignIn{}
+	for result.Next() {
+		result.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	}
+
+	return user, nil
 }

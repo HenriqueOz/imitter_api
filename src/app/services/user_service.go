@@ -1,6 +1,9 @@
 package services
 
 import (
+	"fmt"
+
+	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
@@ -20,4 +23,34 @@ func CreateUser(UserSignUp *models.UserSignUp) error {
 	}
 
 	return repositories.CreateUser(UserSignUp)
+}
+
+func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
+	user, err := repositories.SignInWithEmail(email, password)
+	if err != nil {
+		return nil, err
+	}
+	return GetUserAuth(user)
+}
+
+func SignInWithName(name string, password string) (*models.UserAuth, error) {
+	user, err := repositories.SignInWithEmail(name, password)
+	if err != nil {
+		return nil, err
+	}
+	return GetUserAuth(user)
+}
+
+func GetUserAuth(user *models.UserSignIn) (*models.UserAuth, error) {
+	tokenString, err := utils.GenerateJwtToken(user.Id)
+
+	if err != nil {
+		fmt.Printf("error signing jwt token: %v\n", err)
+		return nil, apperrors.ErrSignIn
+	}
+
+	return &models.UserAuth{
+		AccessToken:  "Bearer " + tokenString,
+		RefreshToken: "Bearer ",
+	}, nil
 }

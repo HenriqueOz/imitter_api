@@ -3,9 +3,12 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"os"
 	"regexp"
+	"time"
 	"unicode"
 
+	"github.com/golang-jwt/jwt/v5"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 )
@@ -65,4 +68,22 @@ func ValidateUsername(username string) error {
 func HashPassword(password string) string {
 	hash := sha256.Sum256([]byte(password))
 	return hex.EncodeToString(hash[:])
+}
+
+func GenerateJwtToken(userId int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": "",
+		"sub": userId,
+		"aud": "",
+		"exp": "",
+		"nbf": time.Now().UnixMilli(),
+		"iat": "",
+		"jti": "",
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
 }
