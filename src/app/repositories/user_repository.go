@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -12,7 +13,8 @@ import (
 
 func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 	result, err := db.Conn.Exec(`
-		INSERT INTO user(name, email, password) VALUES(?, ?, ?)
+		INSERT INTO user(uuid, name, email, password)
+			VALUES (UUID(), ?, ?, ?)
 	`,
 		UserSignUp.Name,
 		UserSignUp.Email,
@@ -39,39 +41,37 @@ func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 
 func SignInWithEmail(email string, password string) (*models.UserSignIn, error) {
 	result, err := db.Conn.Query(`
-		SELECT * FROM user WHERE email = ? AND password = ?
-	`, email, password)
+		SELECT uuid, name
+		FROM user
+		WHERE email = ? AND password = ?
+	`, email, utils.HashPassword(password))
 
-	if err != nil {
-		fmt.Printf("error signin with name: %v", err)
-		return nil, apperrors.ErrSignIn
-	}
-
-	if !result.Next() {
-		fmt.Printf("error signin with name: %v", err)
-		return nil, apperrors.ErrSignIn
-	}
-
-	user := &models.UserSignIn{}
-	result.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
-
-	return user, nil
+	return verifySignIn(result, err)
 }
 
 func SignInWithName(name string, password string) (*models.UserSignIn, error) {
 	result, err := db.Conn.Query(`
-		SELECT * FROM user WHERE name = ? AND password = ?
-	`, name, password)
+		SELECT uuid, name
+		FROM user
+		WHERE name = ? AND password = ?
+	`, name, utils.HashPassword(password))
 
+	return verifySignIn(result, err)
+}
+
+func verifySignIn(result *sql.Rows, err error) (*models.UserSignIn, error) {
 	if err != nil {
-		fmt.Printf("error signin with name: %v", err)
+		fmt.Printf("error sign in: %v", err)
+		return nil, apperrors.ErrSignIn
+	}
+
+	if !result.Next() {
+		fmt.Printf("error sign in: %v", err)
 		return nil, apperrors.ErrSignIn
 	}
 
 	user := &models.UserSignIn{}
-	for result.Next() {
-		result.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
-	}
+	result.Scan(&user.Uuid, &user.Name)
 
 	return user, nil
 }

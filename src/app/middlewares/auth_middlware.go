@@ -37,12 +37,35 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		if token := parseToken(w, splitTokenString[1]); token != nil {
-			sub, _ := token.Claims.GetSubject()
-			r.Header.Add("Id", sub)
+			claims := token.Claims.(jwt.MapClaims)
+			if r.URL.Path == "/refresh" {
+				claims = getTokenClaimsUnverified(w, claims["sub"].(string))
+			}
+			r.Header.Add("Uuid", claims["sub"].(string))
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func getTokenClaimsUnverified(w http.ResponseWriter, expiredToken string) jwt.MapClaims {
+	token, _, err := new(jwt.Parser).ParseUnverified(expiredToken, jwt.MapClaims{})
+	if err != nil {
+		fmt.Printf("error parsing token: %v\n", err)
+		sendInvalidTokenError(w)
+		return nil
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if _, exists := claims["sub"].(string); !exists {
+			sendInvalidTokenError(w)
+			return nil
+		}
+		return claims
+	} else {
+		sendInvalidTokenError(w)
+	}
+	return nil
 }
 
 func parseToken(w http.ResponseWriter, tokenString string) *jwt.Token {

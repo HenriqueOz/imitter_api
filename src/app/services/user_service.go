@@ -26,6 +26,10 @@ func CreateUser(UserSignUp *models.UserSignUp) error {
 }
 
 func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
+	if err := utils.ValidateEmail(email); err != nil {
+		return nil, err
+	}
+
 	user, err := repositories.SignInWithEmail(email, password)
 	if err != nil {
 		return nil, err
@@ -34,6 +38,10 @@ func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
 }
 
 func SignInWithName(name string, password string) (*models.UserAuth, error) {
+	if err := utils.ValidateUsername(name); err != nil {
+		return nil, err
+	}
+
 	user, err := repositories.SignInWithName(name, password)
 	if err != nil {
 		return nil, err
@@ -42,15 +50,20 @@ func SignInWithName(name string, password string) (*models.UserAuth, error) {
 }
 
 func GetUserAuth(user *models.UserSignIn) (*models.UserAuth, error) {
-	tokenString, err := utils.GenerateJwtToken(user.Id)
+	tokenString, err := utils.GenerateJwtToken(user)
+	if err != nil {
+		fmt.Printf("error signing jwt token: %v\n", err)
+		return nil, apperrors.ErrSignIn
+	}
 
+	refreshTokenString, err := utils.GenerateRefreshJwtToken(tokenString)
 	if err != nil {
 		fmt.Printf("error signing jwt token: %v\n", err)
 		return nil, apperrors.ErrSignIn
 	}
 
 	return &models.UserAuth{
-		AccessToken: "Bearer " + tokenString,
-		// RefreshToken: "Bearer ",
+		AccessToken:  "Bearer " + tokenString,
+		RefreshToken: "Bearer " + refreshTokenString,
 	}, nil
 }

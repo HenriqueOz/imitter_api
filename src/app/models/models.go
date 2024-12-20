@@ -7,13 +7,13 @@ type UserSignUp struct {
 }
 
 type UserSignIn struct {
-	Id       int    `json:"id"`
+	Uuid     string `json:"uuid"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type UserAuth struct {
-	AccessToken string `json:"access_token"`
-	// RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }

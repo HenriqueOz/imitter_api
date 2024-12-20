@@ -5,13 +5,13 @@ import (
 	"encoding/hex"
 	"os"
 	"regexp"
-	"strconv"
 	"time"
 	"unicode"
 
 	"github.com/golang-jwt/jwt/v5"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
+	"sm.com/m/src/app/models"
 )
 
 func ValidateEmail(email string) error {
@@ -71,12 +71,31 @@ func HashPassword(password string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func GenerateJwtToken(userId int) (string, error) {
+func GenerateJwtToken(user *models.UserSignIn) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss":      "",
+		"sub":      user.Uuid,
+		"aud":      "",
+		"exp":      jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		"nbf":      jwt.NewNumericDate(time.Now()),
+		"iat":      jwt.NewNumericDate(time.Now()),
+		"jti":      "",
+		"username": user.Name,
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func GenerateRefreshJwtToken(accessToken string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss": "",
-		"sub": strconv.Itoa(userId),
+		"sub": accessToken,
 		"aud": "",
-		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 15)),
 		"nbf": jwt.NewNumericDate(time.Now()),
 		"iat": jwt.NewNumericDate(time.Now()),
 		"jti": "",
