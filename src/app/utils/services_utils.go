@@ -76,7 +76,7 @@ func GenerateJwtToken(user *models.UserSignIn) (string, error) {
 		"iss":      "",
 		"sub":      user.Uuid,
 		"aud":      "",
-		"exp":      jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		"exp":      jwt.NewNumericDate(time.Now().Add(time.Second * 10)),
 		"nbf":      jwt.NewNumericDate(time.Now()),
 		"iat":      jwt.NewNumericDate(time.Now()),
 		"jti":      "",

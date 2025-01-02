@@ -18,7 +18,7 @@ func main() {
 
 // TODO move this function to a config.go file
 func LoadEnvironment() (err error) {
-	err = dotenv.Load("../.env")
+	err = dotenv.Load(".env")
 	if err != nil {
 		return
 	}

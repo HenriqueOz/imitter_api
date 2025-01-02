@@ -8,6 +8,6 @@ var (
 	ErrNameAlreadyInUse  error = errors.New("name already in use")
 	ErrEmailNotFound     error = errors.New("email not found")
 	ErrNameNotFound      error = errors.New("name not found")
-	ErrWrongPassword     error = errors.New("wrong password")
+	ErrWrongLogin        error = errors.New("wrong email or password")
 	ErrSignIn            error = errors.New("sign in error")
 )
