@@ -61,13 +61,13 @@ func SignInWithName(name string, password string) (*models.UserSignIn, error) {
 
 func verifySignIn(result *sql.Rows, err error) (*models.UserSignIn, error) {
 	if err != nil {
-		fmt.Printf("error sign in: %v", err)
+		fmt.Printf("error sign in: %v\n", err)
 		return nil, apperrors.ErrSignIn
 	}
 
 	if !result.Next() {
-		fmt.Printf("error sign in: %v", apperrors.ErrWrongLogin)
-		return nil, apperrors.ErrSignIn
+		fmt.Printf("error sign in: %v\n", apperrors.ErrWrongLogin)
+		return nil, apperrors.ErrWrongLogin
 	}
 
 	user := &models.UserSignIn{}

@@ -84,8 +84,8 @@ func parseToken(w http.ResponseWriter, tokenString string) *jwt.Token {
 func sendInvalidTokenError(w http.ResponseWriter) {
 	fmt.Printf("error %v\n", apperrors.ErrInvalidToken)
 	utils.SendError(w, &utils.RequestError{
-		StatusCode: 403,
-		Err:        apperrors.ErrForbidden,
+		StatusCode: 401,
+		Err:        apperrors.ErrUnauthourized,
 		Message:    apperrors.ErrInvalidToken.Error(),
 	})
 }

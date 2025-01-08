@@ -34,7 +34,7 @@ func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
 	if err != nil {
 		return nil, err
 	}
-	return GetUserAuth(user)
+	return AddSessionTokensToUser(user)
 }
 
 func SignInWithName(name string, password string) (*models.UserAuth, error) {
@@ -46,10 +46,11 @@ func SignInWithName(name string, password string) (*models.UserAuth, error) {
 	if err != nil {
 		return nil, err
 	}
-	return GetUserAuth(user)
+
+	return AddSessionTokensToUser(user)
 }
 
-func GetUserAuth(user *models.UserSignIn) (*models.UserAuth, error) {
+func AddSessionTokensToUser(user *models.UserSignIn) (*models.UserAuth, error) {
 	tokenString, err := utils.GenerateJwtToken(user)
 	if err != nil {
 		fmt.Printf("error signing jwt token: %v\n", err)

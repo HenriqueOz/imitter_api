@@ -8,4 +8,6 @@ var (
 	ErrUnexpectedError       error = errors.New("unexpected error")
 	ErrMissingRequiredFields error = errors.New("missing required fields")
 	ErrEmptyPayload          error = errors.New("empty payload")
+	ErrLogin                 error = errors.New("login fail")
+	ErrCreateUser            error = errors.New("user creation fail")
 )

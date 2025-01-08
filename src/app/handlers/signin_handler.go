@@ -54,8 +54,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 
 func sendSignInError(w http.ResponseWriter, err error) {
 	utils.SendError(w, &utils.RequestError{
-		Err:        apperrors.ErrInternalServerError,
-		StatusCode: http.StatusInternalServerError,
+		Err:        apperrors.ErrLogin,
+		StatusCode: 400,
 		Message:    err.Error(),
 	})
 }

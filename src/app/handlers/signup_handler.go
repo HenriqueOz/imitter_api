@@ -39,7 +39,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendSuccess(w, SignUpSuccessPayload{
 		Name:  payload.Name,
 		Email: payload.Email,
-	}, http.StatusCreated)
+	}, 201)
 }
 
 func validateSignUpPayload(payload models.UserSignUp) (map[string]any, error) {
@@ -54,7 +54,7 @@ func validateSignUpPayload(payload models.UserSignUp) (map[string]any, error) {
 
 func sendCreateUserError(w http.ResponseWriter, err error) {
 	utils.SendError(w, &utils.RequestError{
-		Err:        apperrors.ErrInternalServerError,
+		Err:        apperrors.ErrCreateUser,
 		StatusCode: http.StatusInternalServerError,
 		Message:    err.Error(),
 	})
