@@ -1,37 +1,42 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"sm.com/m/src/app/models"
+	"github.com/gin-gonic/gin"
 	"sm.com/m/src/app/utils"
 )
 
-func RefreshHandler(w http.ResponseWriter, r *http.Request) {
-	payload := generateNewTokens(w, &models.UserSignIn{Uuid: r.Header["Uuid"][0]})
-	if payload == nil {
+func RefreshHandler(c *gin.Context) {
+	uuid := c.GetHeader("uuid")
+
+	payload, err := GetTokenPayload(uuid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ResponseError(
+			err,
+			nil,
+		))
 		return
 	}
 
-	json.NewEncoder(w).Encode(payload)
+	c.JSON(http.StatusNoContent, payload)
 }
 
-func generateNewTokens(w http.ResponseWriter, user *models.UserSignIn) *models.UserAuth {
-	accessToken, err := utils.GenerateJwtToken(user)
+func GetTokenPayload(uuid string) (map[string]any, error) {
+	accessToken, err := utils.GenerateJwtToken(uuid)
 	if err != nil {
-		utils.SendInternalServerError(w)
-		return nil
+		return nil, err
 	}
 
 	refreshToken, err := utils.GenerateRefreshJwtToken(accessToken)
 	if err != nil {
-		utils.SendInternalServerError(w)
-		return nil
+		return nil, err
 	}
 
-	return &models.UserAuth{
-		AccessToken:  "Bearer " + accessToken,
-		RefreshToken: "Bearer " + refreshToken,
+	payload := map[string]any{
+		"access_token":  "Bearer " + accessToken,
+		"refresh_token": "Bearer " + refreshToken,
 	}
+
+	return payload, nil
 }

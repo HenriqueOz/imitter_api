@@ -1,91 +1,78 @@
 package middlewares
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"slices"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/utils"
 )
 
-var skipUrls []string = []string{
-	"/signup", "/signin",
-}
-
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if slices.Contains(skipUrls, r.URL.Path) {
-			next.ServeHTTP(w, r)
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrMissingAuthorization,
+				nil,
+			))
+			c.Abort()
 			return
 		}
 
-		if r.Header["Authorization"] == nil {
-			sendInvalidTokenError(w)
-			return
-		}
-
-		var tokenString string = r.Header["Authorization"][0]
-		splitTokenString := strings.Split(tokenString, " ")
-
+		splitTokenString := strings.Split(authHeader, " ")
 		if len(splitTokenString) < 2 || strings.Compare(splitTokenString[0], "Bearer") != 0 {
-			sendInvalidTokenError(w)
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrInvalidToken,
+				nil,
+			))
+			c.Abort()
 			return
 		}
 
-		if token := parseToken(w, splitTokenString[1]); token != nil {
+		token := parseToken(splitTokenString[1])
+		if token != nil {
 			claims := token.Claims.(jwt.MapClaims)
-			if r.URL.Path == "/refresh" {
-				claims = getTokenClaimsUnverified(w, claims["sub"].(string))
+			if c.Request.URL.Opaque == "/refresh" {
+				claims = getTokenClaimsUnverified(claims["sub"].(string))
 			}
-			r.Header.Add("Uuid", claims["sub"].(string))
+			c.Header("uuid", claims["sub"].(string))
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		c.Next()
+	}
 }
 
-func getTokenClaimsUnverified(w http.ResponseWriter, expiredToken string) jwt.MapClaims {
+func getTokenClaimsUnverified(expiredToken string) jwt.MapClaims {
 	token, _, err := new(jwt.Parser).ParseUnverified(expiredToken, jwt.MapClaims{})
 	if err != nil {
-		fmt.Printf("error parsing token: %v\n", err)
-		sendInvalidTokenError(w)
+		log.Printf("Failed parsing token: %v\n", err)
 		return nil
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok {
 		if _, exists := claims["sub"].(string); !exists {
-			sendInvalidTokenError(w)
 			return nil
 		}
 		return claims
-	} else {
-		sendInvalidTokenError(w)
 	}
+
 	return nil
 }
 
-func parseToken(w http.ResponseWriter, tokenString string) *jwt.Token {
+func parseToken(tokenString string) *jwt.Token {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWTSECRET")), nil
 	})
 
 	if err != nil {
-		fmt.Printf("error parsing token: %v\n", err)
-		sendInvalidTokenError(w)
+		log.Printf("error parsing token: %v\n", err)
 		return nil
 	}
 	return token
-}
-
-func sendInvalidTokenError(w http.ResponseWriter) {
-	fmt.Printf("error %v\n", apperrors.ErrInvalidToken)
-	utils.SendError(w, &utils.RequestError{
-		StatusCode: 401,
-		Err:        apperrors.ErrUnauthourized,
-		Message:    apperrors.ErrInvalidToken.Error(),
-	})
 }

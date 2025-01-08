@@ -4,6 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthTestHandler(c *gin.Context) {
+func CheckAuthHandler(c *gin.Context) {
 
 }

@@ -1,70 +1,62 @@
 package services
 
 import (
-	"fmt"
-
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
 
-func CreateUser(UserSignUp *models.UserSignUp) error {
-	if err := utils.ValidateEmail(UserSignUp.Email); err != nil {
+func CreateUser(user *models.UserModel) error {
+	if err := utils.ValidateEmail(user.Email); err != nil {
 		return err
 	}
 
-	if err := utils.ValidatePassword(UserSignUp.Password); err != nil {
+	if err := utils.ValidatePassword(user.Password); err != nil {
 		return err
 	}
 
-	if err := utils.ValidateUsername(UserSignUp.Name); err != nil {
+	if err := utils.ValidateUsername(user.Name); err != nil {
 		return err
 	}
 
-	return repositories.CreateUser(UserSignUp)
+	return repositories.CreateUser(user)
 }
 
-func SignInWithEmail(email string, password string) (*models.UserAuth, error) {
-	if err := utils.ValidateEmail(email); err != nil {
+func Login(login string, password string) (*models.UserAuthModel, error) {
+	if err := utils.ValidateEmail(login); err != nil {
 		return nil, err
 	}
 
-	user, err := repositories.SignInWithEmail(email, password)
-	if err != nil {
-		return nil, err
-	}
-	return AddSessionTokensToUser(user)
-}
-
-func SignInWithName(name string, password string) (*models.UserAuth, error) {
-	if err := utils.ValidateUsername(name); err != nil {
-		return nil, err
-	}
-
-	user, err := repositories.SignInWithName(name, password)
+	user, err := repositories.LoginWithEmail(login, password)
 	if err != nil {
 		return nil, err
 	}
 
-	return AddSessionTokensToUser(user)
+	userAuth, err := GetUserAuth(user.Uuid)
+	if err != nil {
+		// TODO handle error
+		return nil, err
+	}
+
+	return userAuth, nil
 }
 
-func AddSessionTokensToUser(user *models.UserSignIn) (*models.UserAuth, error) {
-	tokenString, err := utils.GenerateJwtToken(user)
+func GetUserAuth(uuid string) (*models.UserAuthModel, error) {
+	tokenString, err := utils.GenerateJwtToken(uuid)
 	if err != nil {
-		fmt.Printf("error signing jwt token: %v\n", err)
-		return nil, apperrors.ErrSignIn
+		return nil, apperrors.ErrUnexpected
 	}
 
 	refreshTokenString, err := utils.GenerateRefreshJwtToken(tokenString)
 	if err != nil {
-		fmt.Printf("error signing jwt token: %v\n", err)
-		return nil, apperrors.ErrSignIn
+		return nil, apperrors.ErrUnexpected
 	}
 
-	return &models.UserAuth{
+	userAuth := &models.UserAuthModel{
 		AccessToken:  "Bearer " + tokenString,
 		RefreshToken: "Bearer " + refreshTokenString,
-	}, nil
+	}
+
+	return userAuth, nil
 }

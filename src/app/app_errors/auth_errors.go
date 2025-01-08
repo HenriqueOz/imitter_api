@@ -3,6 +3,6 @@ package apperrors
 import "errors"
 
 var (
-	ErrInvalidToken  error = errors.New("invalid token")
-	ErrUnauthourized error = errors.New("unathourized")
+	ErrInvalidToken         error = errors.New("invalid Token")
+	ErrMissingAuthorization error = errors.New("authorization header required")
 )

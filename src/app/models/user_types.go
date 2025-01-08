@@ -1,19 +1,13 @@
 package models
 
-type UserSignUp struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type UserSignIn struct {
+type UserModel struct {
 	Uuid     string `json:"uuid"`
-	Name     string `json:"name"`
 	Email    string `json:"email"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
-type UserAuth struct {
+type UserAuthModel struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }

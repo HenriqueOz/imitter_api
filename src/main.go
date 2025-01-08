@@ -2,25 +2,45 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	dotenv "github.com/joho/godotenv"
 	"sm.com/m/src/app"
+	db "sm.com/m/src/app/database"
 )
 
 func main() {
-	err := LoadEnvironment()
+	defer CloseDB()
+
+	var err error
+
+	err = LoadEnvironment()
 	if err != nil {
-		fmt.Printf("error loading env file: %v\n", err)
+		log.Printf("Failed to load .env file: %v\n", err)
+		os.Exit(1)
+	}
+
+	err = db.OpenConnection()
+	if err != nil {
+		log.Printf("Failed to open database connection: %v\n", err)
+		os.Exit(1)
 	}
 
 	app.Run()
 }
 
-// TODO move this function to a config.go file
 func LoadEnvironment() (err error) {
 	err = dotenv.Load(".env")
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
+}
+
+func CloseDB() {
+	err := db.CloseConnection()
+	if err != nil {
+		fmt.Printf("Failed to close database connection: %v\n", err)
+	}
 }

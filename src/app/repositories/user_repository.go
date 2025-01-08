@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	apperrors "sm.com/m/src/app/app_errors"
@@ -11,14 +11,14 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func CreateUser(UserSignUp *models.UserSignUp) (err error) {
+func CreateUser(user *models.UserModel) (err error) {
 	result, err := db.Conn.Exec(`
 		INSERT INTO user(uuid, name, email, password)
 			VALUES (UUID(), ?, ?, ?)
 	`,
-		UserSignUp.Name,
-		UserSignUp.Email,
-		utils.HashPassword(UserSignUp.Password),
+		user.Name,
+		user.Email,
+		utils.HashPassword(user.Password),
 	)
 
 	fmt.Printf("%v\n", result)
@@ -33,45 +33,31 @@ func CreateUser(UserSignUp *models.UserSignUp) (err error) {
 			return apperrors.ErrNameAlreadyInUse
 		}
 
-		return apperrors.ErrCreatingUser
+		return apperrors.ErrUnexpected
 	}
 
 	return nil
 }
 
-func SignInWithEmail(email string, password string) (*models.UserSignIn, error) {
+func LoginWithEmail(email string, password string) (*models.UserModel, error) {
 	result, err := db.Conn.Query(`
-		SELECT uuid, name
+		SELECT uuid
 		FROM user
 		WHERE email = ? AND password = ?
 	`, email, utils.HashPassword(password))
 
-	return verifySignIn(result, err)
-}
-
-func SignInWithName(name string, password string) (*models.UserSignIn, error) {
-	result, err := db.Conn.Query(`
-		SELECT uuid, name
-		FROM user
-		WHERE name = ? AND password = ?
-	`, name, utils.HashPassword(password))
-
-	return verifySignIn(result, err)
-}
-
-func verifySignIn(result *sql.Rows, err error) (*models.UserSignIn, error) {
 	if err != nil {
-		fmt.Printf("error sign in: %v\n", err)
-		return nil, apperrors.ErrSignIn
+		log.Printf("error sign in: %v\n", err)
+		return nil, apperrors.ErrUnexpected
 	}
 
 	if !result.Next() {
-		fmt.Printf("error sign in: %v\n", apperrors.ErrWrongLogin)
+		log.Printf("error sign in: %v\n", apperrors.ErrWrongLogin)
 		return nil, apperrors.ErrWrongLogin
 	}
 
-	user := &models.UserSignIn{}
-	result.Scan(&user.Uuid, &user.Name)
+	user := &models.UserModel{}
+	result.Scan(&user.Uuid)
 
 	return user, nil
 }
