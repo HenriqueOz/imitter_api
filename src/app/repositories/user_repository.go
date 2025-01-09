@@ -33,6 +33,7 @@ func CreateUser(user *models.UserModel) (err error) {
 			return apperrors.ErrNameAlreadyInUse
 		}
 
+		log.Printf("Failed to create user: %v\n", err)
 		return apperrors.ErrUnexpected
 	}
 
@@ -47,12 +48,33 @@ func LoginWithEmail(email string, password string) (*models.UserModel, error) {
 	`, email, utils.HashPassword(password))
 
 	if err != nil {
-		log.Printf("error sign in: %v\n", err)
+		log.Printf("Failed login with name: %v\n", err)
 		return nil, apperrors.ErrUnexpected
 	}
 
 	if !result.Next() {
-		log.Printf("error sign in: %v\n", apperrors.ErrWrongLogin)
+		return nil, apperrors.ErrWrongLogin
+	}
+
+	user := &models.UserModel{}
+	result.Scan(&user.Uuid)
+
+	return user, nil
+}
+
+func LoginWithName(name string, password string) (*models.UserModel, error) {
+	result, err := db.Conn.Query(`
+		SELECT uuid
+		FROM user
+		WHERE name = ? AND password = ?
+	`, name, utils.HashPassword(password))
+
+	if err != nil {
+		log.Printf("Failed login with name: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+
+	if !result.Next() {
 		return nil, apperrors.ErrWrongLogin
 	}
 

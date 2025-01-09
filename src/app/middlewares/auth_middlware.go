@@ -12,13 +12,14 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
+// TODO revisar o método de pegar o uuid de dentro do refresh token
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, utils.ResponseError(
-				apperrors.ErrMissingAuthorization,
-				nil,
+				apperrors.ErrMissingHeaders,
+				apperrors.ErrMissingAuthorization.Error(),
 			))
 			c.Abort()
 			return
@@ -28,7 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		if len(splitTokenString) < 2 || strings.Compare(splitTokenString[0], "Bearer") != 0 {
 			c.JSON(http.StatusUnauthorized, utils.ResponseError(
 				apperrors.ErrInvalidToken,
-				nil,
+				apperrors.ErrTokenFormat.Error(),
 			))
 			c.Abort()
 			return
@@ -71,7 +72,7 @@ func parseToken(tokenString string) *jwt.Token {
 	})
 
 	if err != nil {
-		log.Printf("error parsing token: %v\n", err)
+		log.Printf("Failed parsing token: %v\n", err)
 		return nil
 	}
 	return token

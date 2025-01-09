@@ -1,14 +1,9 @@
 package utils
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"os"
 	"regexp"
-	"time"
 	"unicode"
 
-	"github.com/golang-jwt/jwt/v5"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 )
@@ -48,7 +43,7 @@ func ValidatePassword(password string) error {
 	return apperrors.ErrIvalidPassword
 }
 
-func ValidateUsername(username string) error {
+func ValidateName(username string) error {
 	if len(username) < int(constants.USER_NAME_MIN_LENGTH) {
 		return apperrors.ErrShortName
 	}
@@ -63,45 +58,4 @@ func ValidateUsername(username string) error {
 	}
 
 	return nil
-}
-
-func HashPassword(password string) string {
-	hash := sha256.Sum256([]byte(password))
-	return hex.EncodeToString(hash[:])
-}
-
-func GenerateJwtToken(uuid string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss": "",
-		"sub": uuid,
-		"aud": "",
-		"exp": jwt.NewNumericDate(time.Now().Add(time.Second * 10)),
-		"nbf": jwt.NewNumericDate(time.Now()),
-		"iat": jwt.NewNumericDate(time.Now()),
-		"jti": "",
-	})
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
-}
-
-func GenerateRefreshJwtToken(accessToken string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"iss": "",
-		"sub": accessToken,
-		"aud": "",
-		"exp": jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 15)),
-		"nbf": jwt.NewNumericDate(time.Now()),
-		"iat": jwt.NewNumericDate(time.Now()),
-		"jti": "",
-	})
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
 }
