@@ -9,11 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/services"
 	"sm.com/m/src/app/utils"
 )
 
-// TODO revisar o método de pegar o uuid de dentro do refresh token
 func AuthMiddleware() gin.HandlerFunc {
+	const refreshPath string = "/v1/auth/refresh"
+
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -36,34 +38,36 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		token := parseToken(splitTokenString[1])
-		if token != nil {
-			claims := token.Claims.(jwt.MapClaims)
-			if c.Request.URL.Opaque == "/refresh" {
-				claims = getTokenClaimsUnverified(claims["sub"].(string))
-			}
-			c.Header("uuid", claims["sub"].(string))
+		if token == nil {
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrInvalidToken,
+				apperrors.ErrInvalidClaims.Error(),
+			))
+			c.Abort()
+			return
 		}
+
+		claims := token.Claims.(jwt.MapClaims)
+		if c.Request.URL.Path == refreshPath {
+			jti := claims["jti"].(string)
+
+			err := services.StoreClaimUuid(jti)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, utils.ResponseError(
+					apperrors.ErrInvalidToken,
+					err.Error(),
+				))
+				c.Abort()
+				return
+			}
+		}
+
+		uuid := claims["uuid"].(string)
+
+		c.Request.Header.Add("uuid", uuid)
 
 		c.Next()
 	}
-}
-
-func getTokenClaimsUnverified(expiredToken string) jwt.MapClaims {
-	token, _, err := new(jwt.Parser).ParseUnverified(expiredToken, jwt.MapClaims{})
-	if err != nil {
-		log.Printf("Failed parsing token: %v\n", err)
-		return nil
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok {
-		if _, exists := claims["sub"].(string); !exists {
-			return nil
-		}
-		return claims
-	}
-
-	return nil
 }
 
 func parseToken(tokenString string) *jwt.Token {

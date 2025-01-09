@@ -44,3 +44,10 @@ CREATE TABLE IF NOT EXISTS post_comment (
 		REFERENCES user(id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS token_blacklist (
+    id INT NOT NULL AUTO_INCREMENT,
+    token_uuid VARCHAR(36) NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT UC_token_blacklist_token_uuid UNIQUE(token_uuid)
+)

@@ -82,7 +82,7 @@ func GetUserAuth(uuid string) (*models.UserAuthModel, error) {
 		return nil, apperrors.ErrUnexpected
 	}
 
-	refreshTokenString, err := utils.GenerateRefreshJwtToken(tokenString)
+	refreshTokenString, err := utils.GenerateRefreshJwtToken(uuid, tokenString)
 	if err != nil {
 		log.Printf("Failed to generate jwt refresh token: %v\n", err)
 		return nil, apperrors.ErrUnexpected

@@ -10,7 +10,7 @@ import (
 func RefreshHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
-	payload, err := GetTokenPayload(uuid)
+	tokenResponse, err := GetTokenPayload(uuid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ResponseError(
 			err,
@@ -19,7 +19,7 @@ func RefreshHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, payload)
+	c.JSON(http.StatusOK, utils.ResponseSuccess(tokenResponse))
 }
 
 func GetTokenPayload(uuid string) (map[string]any, error) {
@@ -28,7 +28,7 @@ func GetTokenPayload(uuid string) (map[string]any, error) {
 		return nil, err
 	}
 
-	refreshToken, err := utils.GenerateRefreshJwtToken(accessToken)
+	refreshToken, err := utils.GenerateRefreshJwtToken(uuid, accessToken)
 	if err != nil {
 		return nil, err
 	}

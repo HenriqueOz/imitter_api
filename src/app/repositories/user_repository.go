@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -21,10 +20,7 @@ func CreateUser(user *models.UserModel) (err error) {
 		utils.HashPassword(user.Password),
 	)
 
-	fmt.Printf("%v\n", result)
-
 	if err != nil {
-		fmt.Printf("error inserting user in the table: %v\n", err)
 		if strings.Contains(err.Error(), "user.UC_email") {
 			return apperrors.ErrEmailAlreadyInUse
 		}
@@ -33,7 +29,7 @@ func CreateUser(user *models.UserModel) (err error) {
 			return apperrors.ErrNameAlreadyInUse
 		}
 
-		log.Printf("Failed to create user: %v\n", err)
+		log.Printf("Failed to create user: %v result: %v\n", err, result)
 		return apperrors.ErrUnexpected
 	}
 
@@ -67,6 +63,7 @@ func LoginWithName(name string, password string) (*models.UserModel, error) {
 		SELECT uuid
 		FROM user
 		WHERE name = ? AND password = ?
+		LIMIT 1
 	`, name, utils.HashPassword(password))
 
 	if err != nil {

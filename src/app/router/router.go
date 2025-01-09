@@ -12,6 +12,6 @@ func BindAuthRoutes(router *gin.RouterGroup) {
 		auth.POST("/login", handlers.LoginHandler)
 		auth.POST("/create-account", handlers.CreateAccountHandler)
 		auth.GET("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
-		auth.GET("/check-auth", middlewares.AuthMiddleware(), handlers.CheckAuthHandler)
+		auth.GET("/test", middlewares.AuthMiddleware(), handlers.AuthTestHandler)
 	}
 }
