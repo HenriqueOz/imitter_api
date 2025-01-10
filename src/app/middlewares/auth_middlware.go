@@ -47,8 +47,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		var uuid string
 		claims := token.Claims.(jwt.MapClaims)
 		if c.Request.URL.Path == refreshPath {
+			uuid = claims["uuid"].(string)
 			jti := claims["jti"].(string)
 
 			err := services.StoreClaimUuid(jti)
@@ -60,9 +62,9 @@ func AuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+		} else {
+			uuid = claims["sub"].(string)
 		}
-
-		uuid := claims["uuid"].(string)
 
 		c.Request.Header.Add("uuid", uuid)
 

@@ -25,5 +25,4 @@ func StoreTokenUuid(uuid string) error {
 	}
 
 	return nil
-
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -41,6 +40,6 @@ func LoadEnvironment() (err error) {
 func CloseDB() {
 	err := db.CloseConnection()
 	if err != nil {
-		fmt.Printf("Failed to close database connection: %v\n", err)
+		log.Printf("Failed to close database connection: %v\n", err)
 	}
 }

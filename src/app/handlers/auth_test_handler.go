@@ -10,5 +10,6 @@ import (
 func AuthTestHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.ResponseSuccess(map[string]interface{}{
 		"status": "you're authenticated!",
+		"uuid":   c.GetHeader("uuid"),
 	}))
 }

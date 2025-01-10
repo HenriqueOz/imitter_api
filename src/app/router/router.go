@@ -13,5 +13,27 @@ func BindAuthRoutes(router *gin.RouterGroup) {
 		auth.POST("/create-account", handlers.CreateAccountHandler)
 		auth.GET("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
 		auth.GET("/test", middlewares.AuthMiddleware(), handlers.AuthTestHandler)
+		// POST logout // TODO adicionar refresh token na blacklist
 	}
 }
+
+func BindUserRoutes(router *gin.RouterGroup) {
+	user := router.Group("user")
+	user.Use(middlewares.AuthMiddleware())
+	{
+		user.PATCH("/update-name")
+		user.PATCH("/update-password")
+		user.DELETE("/delete-account")
+	}
+}
+
+func BindPostRoutes(router *gin.RouterGroup) {
+	// posts := router.Group("/posts")
+	// GET recent post
+	// POST create post
+	// GET following posts
+	// UPDATE edit post
+	// DELETE delete post
+}
+
+func BindSearchRoutes(router *gin.RouterGroup) {}
