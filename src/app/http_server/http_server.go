@@ -44,9 +44,11 @@ func (server *Server) setMiddlewares() {
 	server.Gin.Use(gin.Logger())
 	server.Gin.Use(gin.Recovery())
 	server.Gin.Use(middlewares.ContentTypeMiddleware())
+	server.Gin.Use(middlewares.CorsMiddleware())
 }
 
 func (server *Server) setRoutes() {
 	v1 := server.Gin.Group("/v1")
 	router.BindAuthRoutes(v1)
+	router.BindPostRoutes(v1)
 }

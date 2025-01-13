@@ -1,13 +1,11 @@
 package middlewares
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/services"
 	"sm.com/m/src/app/utils"
@@ -37,7 +35,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		token := parseToken(splitTokenString[1])
+		token := utils.ParseToken(splitTokenString[1])
 		if token == nil {
 			c.JSON(http.StatusUnauthorized, utils.ResponseError(
 				apperrors.ErrInvalidToken,
@@ -53,7 +51,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			uuid = claims["uuid"].(string)
 			jti := claims["jti"].(string)
 
-			err := services.StoreClaimUuid(jti)
+			err := services.AddTokenToBlacklist(jti)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, utils.ResponseError(
 					apperrors.ErrInvalidToken,
@@ -70,16 +68,4 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-func parseToken(tokenString string) *jwt.Token {
-	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWTSECRET")), nil
-	})
-
-	if err != nil {
-		log.Printf("Failed parsing token: %v\n", err)
-		return nil
-	}
-	return token
 }

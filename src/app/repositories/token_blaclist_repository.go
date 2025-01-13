@@ -8,7 +8,7 @@ import (
 	db "sm.com/m/src/app/database"
 )
 
-func StoreTokenUuid(uuid string) error {
+func AddTokenToBlacklist(uuid string) error {
 	result, err := db.Conn.Exec(
 		`INSERT INTO token_blacklist(token_uuid)
 			VALUES(?)`,

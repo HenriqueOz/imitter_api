@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -34,7 +35,7 @@ func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 		"uuid": uuid,
 		"aud":  "temp-aud",
 		"exp":  jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-		"nbf":  jwt.NewNumericDate(time.Now().Add(time.Minute * 15)),
+		"nbf":  jwt.NewNumericDate(time.Now()),
 		"iat":  jwt.NewNumericDate(time.Now()),
 		"jti":  jti,
 	})
@@ -44,4 +45,16 @@ func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func ParseToken(tokenString string) *jwt.Token {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWTSECRET")), nil
+	})
+
+	if err != nil {
+		log.Printf("Failed parsing token: %v\n", err)
+		return nil
+	}
+	return token
 }

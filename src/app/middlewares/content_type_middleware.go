@@ -6,7 +6,7 @@ import (
 
 func ContentTypeMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Content-Type", "application/json")
+		c.Header("Content-Type", "application/json; charset=utf-8")
 		c.Next()
 	}
 }

@@ -1,0 +1,10 @@
+services:
+  server:
+    image: golang:1.23.4
+    ports:
+      - 8080:8080
+
+  database:
+    image: mysql:8.0.40
+    ports:
+      - 3306:3306

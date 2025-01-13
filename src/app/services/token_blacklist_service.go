@@ -1,7 +1,14 @@
 package services
 
-import "sm.com/m/src/app/repositories"
+import (
+	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/repositories"
+)
 
-func StoreClaimUuid(uuid string) error {
-	return repositories.StoreTokenUuid(uuid)
+func AddTokenToBlacklist(uuid string) error {
+	if len(uuid) != 36 {
+		return apperrors.ErrInvalidClaims
+	}
+
+	return repositories.AddTokenToBlacklist(uuid)
 }

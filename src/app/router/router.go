@@ -11,9 +11,9 @@ func BindAuthRoutes(router *gin.RouterGroup) {
 	{
 		auth.POST("/login", handlers.LoginHandler)
 		auth.POST("/create-account", handlers.CreateAccountHandler)
-		auth.GET("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
+		auth.POST("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
+		auth.POST("/logout", middlewares.AuthMiddleware(), handlers.LogoutHandler)
 		auth.GET("/test", middlewares.AuthMiddleware(), handlers.AuthTestHandler)
-		// POST logout // TODO adicionar refresh token na blacklist
 	}
 }
 
