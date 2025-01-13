@@ -1,91 +1,71 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
-	"os"
-	"slices"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/services"
 	"sm.com/m/src/app/utils"
 )
 
-var skipUrls []string = []string{
-	"/signup", "/signin",
-}
+func AuthMiddleware() gin.HandlerFunc {
+	const refreshPath string = "/v1/auth/refresh"
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if slices.Contains(skipUrls, r.URL.Path) {
-			next.ServeHTTP(w, r)
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrMissingHeaders,
+				apperrors.ErrMissingAuthorization.Error(),
+			))
+			c.Abort()
 			return
 		}
 
-		if r.Header["Authorization"] == nil {
-			sendInvalidTokenError(w)
-			return
-		}
-
-		var tokenString string = r.Header["Authorization"][0]
-		splitTokenString := strings.Split(tokenString, " ")
-
+		splitTokenString := strings.Split(authHeader, " ")
 		if len(splitTokenString) < 2 || strings.Compare(splitTokenString[0], "Bearer") != 0 {
-			sendInvalidTokenError(w)
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrInvalidToken,
+				apperrors.ErrTokenFormat.Error(),
+			))
+			c.Abort()
 			return
 		}
 
-		if token := parseToken(w, splitTokenString[1]); token != nil {
-			claims := token.Claims.(jwt.MapClaims)
-			if r.URL.Path == "/refresh" {
-				claims = getTokenClaimsUnverified(w, claims["sub"].(string))
+		token := utils.ParseToken(splitTokenString[1])
+		if token == nil {
+			c.JSON(http.StatusUnauthorized, utils.ResponseError(
+				apperrors.ErrInvalidToken,
+				apperrors.ErrInvalidClaims.Error(),
+			))
+			c.Abort()
+			return
+		}
+
+		var uuid string
+		claims := token.Claims.(jwt.MapClaims)
+		if c.Request.URL.Path == refreshPath {
+			uuid = claims["uuid"].(string)
+			jti := claims["jti"].(string)
+
+			err := services.AddTokenToBlacklist(jti)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, utils.ResponseError(
+					apperrors.ErrInvalidToken,
+					err.Error(),
+				))
+				c.Abort()
+				return
 			}
-			r.Header.Add("Uuid", claims["sub"].(string))
+		} else {
+			uuid = claims["sub"].(string)
 		}
 
-		next.ServeHTTP(w, r)
-	})
-}
+		c.Request.Header.Add("uuid", uuid)
 
-func getTokenClaimsUnverified(w http.ResponseWriter, expiredToken string) jwt.MapClaims {
-	token, _, err := new(jwt.Parser).ParseUnverified(expiredToken, jwt.MapClaims{})
-	if err != nil {
-		fmt.Printf("error parsing token: %v\n", err)
-		sendInvalidTokenError(w)
-		return nil
+		c.Next()
 	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		if _, exists := claims["sub"].(string); !exists {
-			sendInvalidTokenError(w)
-			return nil
-		}
-		return claims
-	} else {
-		sendInvalidTokenError(w)
-	}
-	return nil
-}
-
-func parseToken(w http.ResponseWriter, tokenString string) *jwt.Token {
-	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWTSECRET")), nil
-	})
-
-	if err != nil {
-		fmt.Printf("error parsing token: %v\n", err)
-		sendInvalidTokenError(w)
-		return nil
-	}
-	return token
-}
-
-func sendInvalidTokenError(w http.ResponseWriter) {
-	fmt.Printf("error %v\n", apperrors.ErrInvalidToken)
-	utils.SendError(w, &utils.RequestError{
-		StatusCode: 403,
-		Err:        apperrors.ErrForbidden,
-		Message:    apperrors.ErrInvalidToken.Error(),
-	})
 }

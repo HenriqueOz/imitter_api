@@ -16,40 +16,43 @@ var (
 func initConfig() {
 	if connectionConfig == nil {
 		connectionConfig = &mysql.Config{
-			User:                 os.Getenv("DBUSER"),
-			Passwd:               os.Getenv("DBPASSWORD"),
-			Addr:                 net.JoinHostPort(os.Getenv("DBHOST"), os.Getenv("DBPORT")),
-			DBName:               os.Getenv("DBNAME"),
+			User:                 os.Getenv("DB_USER"),
+			Passwd:               os.Getenv("DB_PASSWORD"),
+			Addr:                 net.JoinHostPort(os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
+			DBName:               os.Getenv("DB_NAME"),
 			Net:                  "tcp",
 			AllowNativePasswords: true,
 		}
 	}
 }
 
-func OpenConnection() (err error) {
+func OpenConnection() error {
 	initConfig()
 	dsn := connectionConfig.FormatDSN()
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return
+		return err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return
+		return err
 	}
 
 	Conn = db
-	return
+	return nil
 }
 
-func CloseConnection() (err error) {
-	if Conn != nil {
-		err = Conn.Close()
-		if err != nil {
-			return
-		}
+func CloseConnection() error {
+	if Conn == nil {
+		return nil
 	}
-	return
+
+	err := Conn.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

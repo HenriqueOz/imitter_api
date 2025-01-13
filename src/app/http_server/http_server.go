@@ -1,55 +1,54 @@
 package httpserver
 
 import (
+	"log"
 	"net"
-	"net/http"
 	"os"
-	"time"
 
-	"sm.com/m/src/app/handlers"
+	"github.com/gin-gonic/gin"
 	"sm.com/m/src/app/middlewares"
+	"sm.com/m/src/app/router"
 )
 
-type Middleware func(next http.Handler) http.Handler
-
-func NewServer() *http.Server {
-	mux := http.NewServeMux()
-	mux = assignRoutes(mux)
-	handler := assignMiddlewares(mux)
-
-	return assignServer(handler)
+type Server struct {
+	Port string
+	Host string
+	Gin  *gin.Engine
 }
 
-func assignRoutes(mux *http.ServeMux) *http.ServeMux {
-	mux.HandleFunc("POST /signup", handlers.SignUpHandler)
-	mux.HandleFunc("GET /signin", handlers.SignInHandler)
-	mux.HandleFunc("GET /refresh", handlers.RefreshHandler)
-	mux.HandleFunc("GET /test", handlers.TestHandler)
-	return mux
-}
-
-func assignMiddlewares(handler http.Handler) http.Handler {
-	return chainMiddlewares(
-		handler,
-		middlewares.RequestLoggerMiddleware,
-		middlewares.ContentTypeMiddleware,
-		middlewares.CorsMiddleware,
-		middlewares.AuthMiddleware,
-	)
-}
-
-func chainMiddlewares(handler http.Handler, middlewares ...Middleware) http.Handler {
-	for _, middleware := range middlewares {
-		handler = middleware(handler)
+func NewServer() *Server {
+	server := &Server{
+		Port: os.Getenv("SERVER_PORT"),
+		Host: os.Getenv("SERVER_HOST"),
+		Gin:  gin.New(),
 	}
-	return handler
+
+	server.Gin.SetTrustedProxies(nil) //! Not safe
+
+	server.setMiddlewares()
+	server.setRoutes()
+
+	return server
 }
 
-func assignServer(handler http.Handler) *http.Server {
-	return &http.Server{
-		Addr:         net.JoinHostPort(os.Getenv("SVHOST"), os.Getenv("SVPORT")),
-		Handler:      handler,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+func (server *Server) Run() {
+	address := net.JoinHostPort(server.Host, server.Port)
+	err := server.Gin.Run(address)
+	if err != nil {
+		log.Printf("Failed to start server: %v", err)
+		os.Exit(1)
 	}
+}
+
+func (server *Server) setMiddlewares() {
+	server.Gin.Use(gin.Logger())
+	server.Gin.Use(gin.Recovery())
+	server.Gin.Use(middlewares.ContentTypeMiddleware())
+	server.Gin.Use(middlewares.CorsMiddleware())
+}
+
+func (server *Server) setRoutes() {
+	v1 := server.Gin.Group("/v1")
+	router.BindAuthRoutes(v1)
+	router.BindPostRoutes(v1)
 }
