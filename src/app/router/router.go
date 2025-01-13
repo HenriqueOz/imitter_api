@@ -22,7 +22,7 @@ func BindUserRoutes(router *gin.RouterGroup) {
 	user.Use(middlewares.AuthMiddleware())
 	{
 		user.PATCH("/update-name")
-		user.PATCH("/update-password")
+		user.PATCH("/update-password", handlers.UpdatePasswordHandler)
 		user.DELETE("/delete-account")
 	}
 }

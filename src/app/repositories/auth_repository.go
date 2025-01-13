@@ -17,7 +17,7 @@ func CreateUser(user *models.UserModel) (err error) {
 	`,
 		user.Name,
 		user.Email,
-		utils.HashPassword(user.Password),
+		utils.HashSha256(user.Password),
 	)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func LoginWithEmail(email string, password string) (*models.UserModel, error) {
 		SELECT uuid
 		FROM user
 		WHERE email = ? AND password = ?
-	`, email, utils.HashPassword(password))
+	`, email, utils.HashSha256(password))
 
 	if err != nil {
 		log.Printf("Failed login with name: %v\n", err)
@@ -64,7 +64,7 @@ func LoginWithName(name string, password string) (*models.UserModel, error) {
 		FROM user
 		WHERE name = ? AND password = ?
 		LIMIT 1
-	`, name, utils.HashPassword(password))
+	`, name, utils.HashSha256(password))
 
 	if err != nil {
 		log.Printf("Failed login with name: %v\n", err)

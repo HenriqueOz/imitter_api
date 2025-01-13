@@ -4,22 +4,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/utils"
 )
 
 func RefreshHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
-	tokenResponse, err := GetTokenPayload(uuid)
+	tokenPayload, err := GetTokenPayload(uuid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ResponseError(
-			err,
-			nil,
+			apperrors.ErrUnexpected,
+			err.Error(),
 		))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.ResponseSuccess(tokenResponse))
+	c.JSON(http.StatusOK, utils.ResponseSuccess(tokenPayload))
 }
 
 func GetTokenPayload(uuid string) (map[string]any, error) {

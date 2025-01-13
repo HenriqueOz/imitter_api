@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
-	"github.com/go-playground/validator/v10"
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/services"
@@ -26,18 +24,7 @@ func CreateAccountHandler(c *gin.Context) {
 	err = c.ShouldBindJSON(&requestBody)
 
 	if err != nil {
-		var verr validator.ValidationErrors
-		if errors.As(err, &verr) {
-			c.JSON(http.StatusBadRequest, utils.ResponseError(
-				apperrors.ErrMissingFields,
-				utils.DescriptiveError(verr),
-			))
-		} else {
-			c.JSON(http.StatusBadRequest, utils.ResponseError(
-				apperrors.ErrInvalidRequest,
-				err.Error(),
-			))
-		}
+		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
 
