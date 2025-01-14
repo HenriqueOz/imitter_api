@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/services"
 	"sm.com/m/src/app/utils"
 )
 
@@ -19,4 +23,16 @@ func UpdatePasswordHandler(c *gin.Context) {
 		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
+
+	uuid := c.GetHeader("uuid")
+
+	err = services.UpdateUserPassword(uuid, requestBody.NewPassword, requestBody.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.ResponseError(
+			apperrors.ErrInvalidRequest,
+			err.Error(),
+		))
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{})
 }
