@@ -8,7 +8,13 @@ import (
 	db "sm.com/m/src/app/database"
 )
 
-func AddTokenToBlacklist(uuid string) error {
+type BlackListRepository struct{}
+
+func NewBlackListRepository() *BlackListRepository {
+	return &BlackListRepository{}
+}
+
+func (repository *BlackListRepository) AddTokenToBlacklist(uuid string) error {
 	result, err := db.Conn.Exec(
 		`INSERT INTO token_blacklist(token_uuid)
 			VALUES(?)`,

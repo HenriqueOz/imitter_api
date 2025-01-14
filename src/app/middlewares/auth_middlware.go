@@ -12,6 +12,7 @@ import (
 )
 
 func AuthMiddleware() gin.HandlerFunc {
+	blackListService := services.NewBlackListService()
 	const refreshPath string = "/v1/auth/refresh"
 
 	return func(c *gin.Context) {
@@ -51,7 +52,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			uuid = claims["uuid"].(string)
 			jti := claims["jti"].(string)
 
-			err := services.AddTokenToBlacklist(jti)
+			err := blackListService.AddTokenToBlacklist(jti)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, utils.ResponseError(
 					apperrors.ErrInvalidToken,

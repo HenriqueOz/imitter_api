@@ -19,10 +19,12 @@ func GenerateJwtToken(uuid string) (string, error) {
 		"iat": jwt.NewNumericDate(time.Now()),
 	})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
+	secret := os.Getenv("JWT_SECRET")
+	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
+
 	return tokenString, nil
 }
 
@@ -40,7 +42,8 @@ func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 		"jti":  jti,
 	})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWTSECRET")))
+	secret := os.Getenv("JWT_SECRET")
+	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +52,7 @@ func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 
 func ParseToken(tokenString string) *jwt.Token {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWTSECRET")), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {

@@ -10,7 +10,13 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func CreateUser(user *models.UserModel) (err error) {
+type AuthRepository struct{}
+
+func NewAuthRepository() *AuthRepository {
+	return &AuthRepository{}
+}
+
+func (repository *AuthRepository) CreateUser(user *models.UserModel) (err error) {
 	result, err := db.Conn.Exec(`
 		INSERT INTO user(uuid, name, email, password)
 			VALUES (UUID(), ?, ?, ?)
@@ -36,7 +42,7 @@ func CreateUser(user *models.UserModel) (err error) {
 	return nil
 }
 
-func LoginWithEmail(email string, password string) (*models.UserModel, error) {
+func (repository *AuthRepository) LoginWithEmail(email string, password string) (*models.UserModel, error) {
 	result, err := db.Conn.Query(`
 		SELECT uuid
 		FROM user
@@ -58,7 +64,7 @@ func LoginWithEmail(email string, password string) (*models.UserModel, error) {
 	return user, nil
 }
 
-func LoginWithName(name string, password string) (*models.UserModel, error) {
+func (repository *AuthRepository) LoginWithName(name string, password string) (*models.UserModel, error) {
 	result, err := db.Conn.Query(`
 		SELECT uuid
 		FROM user

@@ -48,7 +48,9 @@ func (server *Server) setMiddlewares() {
 }
 
 func (server *Server) setRoutes() {
+	r := router.NewAppRouter()
+
 	v1 := server.Gin.Group("/v1")
-	router.BindAuthRoutes(v1)
-	router.BindUserRoutes(v1)
+	r.BindAuthRoutes(v1)
+	r.BindUserRoutes(v1)
 }

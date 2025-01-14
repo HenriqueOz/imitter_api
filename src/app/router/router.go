@@ -6,7 +6,13 @@ import (
 	"sm.com/m/src/app/middlewares"
 )
 
-func BindAuthRoutes(router *gin.RouterGroup) {
+type AppRouter struct{}
+
+func NewAppRouter() *AppRouter {
+	return &AppRouter{}
+}
+
+func (*AppRouter) BindAuthRoutes(router *gin.RouterGroup) {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/login", handlers.LoginHandler)
@@ -17,17 +23,17 @@ func BindAuthRoutes(router *gin.RouterGroup) {
 	}
 }
 
-func BindUserRoutes(router *gin.RouterGroup) {
+func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 	user := router.Group("user")
 	user.Use(middlewares.AuthMiddleware())
 	{
-		user.PATCH("/update-name")
+		user.PATCH("/update-name", handlers.UpdateNameHandler)
 		user.PATCH("/update-password", handlers.UpdatePasswordHandler)
 		user.DELETE("/delete-account")
 	}
 }
 
-func BindPostRoutes(router *gin.RouterGroup) {
+func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	// posts := router.Group("/posts")
 	// GET recent post
 	// POST create post
@@ -36,4 +42,4 @@ func BindPostRoutes(router *gin.RouterGroup) {
 	// DELETE delete post
 }
 
-func BindSearchRoutes(router *gin.RouterGroup) {}
+func (*AppRouter) BindSearchRoutes(router *gin.RouterGroup) {}

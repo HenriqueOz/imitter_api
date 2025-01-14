@@ -27,4 +27,5 @@ var (
 	ErrUserNotFound            error = errors.New("Could not find the user")
 	ErrLogin                   error = errors.New("failed to login")
 	ErrNewAndOldPasswordEquals error = errors.New("new password can't be equals to the current password")
+	ErrNewAndOldNameEquals     error = errors.New("new name can't be equals to the current name")
 )

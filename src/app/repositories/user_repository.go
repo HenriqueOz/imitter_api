@@ -9,9 +9,15 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func UpdateUserPassword(uuid string, newPassword string, password string) error {
+type UserRepository struct{}
+
+func NewUserRepository() *UserRepository {
+	return &UserRepository{}
+}
+
+func (repository *UserRepository) UpdateUserPassword(uuid string, newPassword string, password string) error {
 	rows, err := database.Conn.Query(`
-		SELECT password
+		SELECT name
 		FROM user
 		WHERE
 			uuid = ? AND
@@ -41,14 +47,15 @@ func UpdateUserPassword(uuid string, newPassword string, password string) error 
 	return nil
 }
 
-func UpdateUserName(uuid string, name string, password string) error {
+func (repository *UserRepository) UpdateUserName(uuid string, name string, password string) error {
+	hash := utils.HashSha256(password)
 	rows, err := database.Conn.Query(`
-		SELECT password
+		SELECT name
 		FROM user
 		WHERE
 			uuid = ? AND
 			password = ?
-	`, uuid, utils.HashSha256(password))
+	`, uuid, hash)
 
 	if err != nil {
 		log.Printf("Failed to find user by uuid: %v\n", err)
@@ -78,6 +85,6 @@ func UpdateUserName(uuid string, name string, password string) error {
 	return nil
 }
 
-func DeleteUserAccount(uuid string, password string) error {
+func (repository *UserRepository) DeleteUserAccount(uuid string, password string) error {
 	return nil
 }

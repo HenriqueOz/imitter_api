@@ -9,14 +9,15 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type UpdatePasswordRequest struct {
-	Password    string `json:"password" binding:"required"`
-	NewPassword string `json:"new_password" binding:"required"`
+type UpdateNameRequest struct {
+	Password string `json:"password" binding:"required"`
+	NewName  string `json:"new_name" binding:"required"`
+	Name     string `json:"name" binding:"required"`
 }
 
-func UpdatePasswordHandler(c *gin.Context) {
+func UpdateNameHandler(c *gin.Context) {
 	userService := services.NewUserService()
-	var requestBody UpdatePasswordRequest
+	var requestBody UpdateNameRequest
 
 	err := c.ShouldBindBodyWithJSON(&requestBody)
 
@@ -27,7 +28,7 @@ func UpdatePasswordHandler(c *gin.Context) {
 
 	uuid := c.GetHeader("uuid")
 
-	err = userService.UpdateUserPassword(uuid, requestBody.NewPassword, requestBody.Password)
+	err = userService.UpdateUserName(uuid, requestBody.Name, requestBody.NewName, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(
 			apperrors.ErrInvalidRequest,
