@@ -2,6 +2,7 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/repositories"
 )
 
@@ -11,14 +12,16 @@ type BlackListService struct {
 
 func NewBlackListService() *BlackListService {
 	return &BlackListService{
-		BlackListRepository: repositories.NewBlackListRepository(),
+		BlackListRepository: repositories.NewBlackListRepository(
+			database.Conn,
+		),
 	}
 }
 
-func (service *BlackListService) AddTokenToBlacklist(uuid string) error {
+func (s *BlackListService) AddTokenToBlacklist(uuid string) error {
 	if len(uuid) != 36 {
 		return apperrors.ErrInvalidClaims
 	}
 
-	return service.BlackListRepository.AddTokenToBlacklist(uuid)
+	return s.BlackListRepository.AddTokenToBlacklist(uuid)
 }

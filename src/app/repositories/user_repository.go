@@ -9,14 +9,19 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type UserRepository struct{}
-
-func NewUserRepository() *UserRepository {
-	return &UserRepository{}
+type UserRepository struct {
+	DB database.Database
 }
 
-func (repository *UserRepository) UpdateUserPassword(uuid string, newPassword string, password string) error {
-	rows, err := database.Conn.Query(`
+func NewUserRepository(db database.Database) *UserRepository {
+	return &UserRepository{
+		DB: db,
+	}
+}
+
+func (r *UserRepository) UpdateUserPassword(uuid string, newPassword string, password string) error {
+
+	rows, err := r.DB.Query(`
 		SELECT name
 		FROM user
 		WHERE
@@ -33,7 +38,7 @@ func (repository *UserRepository) UpdateUserPassword(uuid string, newPassword st
 		return apperrors.ErrWrongPassword
 	}
 
-	result, err := database.Conn.Exec(`
+	result, err := r.DB.Exec(`
 		UPDATE user
 		SET password = ?
 		WHERE uuid = ?
@@ -47,9 +52,9 @@ func (repository *UserRepository) UpdateUserPassword(uuid string, newPassword st
 	return nil
 }
 
-func (repository *UserRepository) UpdateUserName(uuid string, name string, password string) error {
+func (r *UserRepository) UpdateUserName(uuid string, name string, password string) error {
 	hash := utils.HashSha256(password)
-	rows, err := database.Conn.Query(`
+	rows, err := r.DB.Query(`
 		SELECT name
 		FROM user
 		WHERE
@@ -66,7 +71,7 @@ func (repository *UserRepository) UpdateUserName(uuid string, name string, passw
 		return apperrors.ErrWrongPassword
 	}
 
-	result, err := database.Conn.Exec(`
+	result, err := r.DB.Exec(`
 		UPDATE user
 		SET name = ?
 		WHERE uuid = ?
@@ -85,6 +90,6 @@ func (repository *UserRepository) UpdateUserName(uuid string, name string, passw
 	return nil
 }
 
-func (repository *UserRepository) DeleteUserAccount(uuid string, password string) error {
+func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 	return nil
 }

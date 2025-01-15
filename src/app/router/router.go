@@ -29,7 +29,7 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 	{
 		user.PATCH("/update-name", handlers.UpdateNameHandler)
 		user.PATCH("/update-password", handlers.UpdatePasswordHandler)
-		user.DELETE("/delete-account")
+		user.DELETE("/delete-account", handlers.DeleteAccoutnHandler)
 	}
 }
 

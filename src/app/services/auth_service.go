@@ -4,6 +4,7 @@ import (
 	"log"
 
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
@@ -15,11 +16,13 @@ type AuthService struct {
 
 func NewAuthService() *AuthService {
 	return &AuthService{
-		AuthRepository: repositories.NewAuthRepository(),
+		AuthRepository: repositories.NewAuthRepository(
+			database.Conn,
+		),
 	}
 }
 
-func (service *AuthService) CreateUser(user *models.UserModel) error {
+func (s *AuthService) CreateUser(user *models.UserModel) error {
 	if err := utils.ValidateEmail(user.Email); err != nil {
 		return err
 	}
@@ -32,10 +35,10 @@ func (service *AuthService) CreateUser(user *models.UserModel) error {
 		return err
 	}
 
-	return service.AuthRepository.CreateUser(user)
+	return s.AuthRepository.CreateUser(user)
 }
 
-func (service *AuthService) Login(method string, login string, password string) (*models.UserAuthModel, error) {
+func (s *AuthService) Login(method string, login string, password string) (*models.UserAuthModel, error) {
 	var err error
 
 	var user *models.UserModel
@@ -44,16 +47,16 @@ func (service *AuthService) Login(method string, login string, password string) 
 	default:
 		err = apperrors.ErrInvalidLoginMethod
 	case "email":
-		user, err = service.LoginWithEmail(login, password)
+		user, err = s.LoginWithEmail(login, password)
 	case "name":
-		user, err = service.LoginWithName(login, password)
+		user, err = s.LoginWithName(login, password)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	userAuth, err := service.GetUserAuth(user.Uuid)
+	userAuth, err := s.GetUserAuth(user.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -61,33 +64,33 @@ func (service *AuthService) Login(method string, login string, password string) 
 	return userAuth, nil
 }
 
-func (service *AuthService) LoginWithEmail(email string, password string) (*models.UserModel, error) {
+func (s *AuthService) LoginWithEmail(email string, password string) (*models.UserModel, error) {
 	err := utils.ValidateEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := service.AuthRepository.LoginWithEmail(email, password)
+	user, err := s.AuthRepository.LoginWithEmail(email, password)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (service *AuthService) LoginWithName(name string, password string) (*models.UserModel, error) {
+func (s *AuthService) LoginWithName(name string, password string) (*models.UserModel, error) {
 	err := utils.ValidateName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := service.AuthRepository.LoginWithName(name, password)
+	user, err := s.AuthRepository.LoginWithName(name, password)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (service *AuthService) GetUserAuth(uuid string) (*models.UserAuthModel, error) {
+func (s *AuthService) GetUserAuth(uuid string) (*models.UserAuthModel, error) {
 	tokenString, err := utils.GenerateJwtToken(uuid)
 	if err != nil {
 		log.Printf("Failed to generate jwt token: %v\n", err)

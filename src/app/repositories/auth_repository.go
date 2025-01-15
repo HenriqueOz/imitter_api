@@ -5,19 +5,23 @@ import (
 	"strings"
 
 	apperrors "sm.com/m/src/app/app_errors"
-	db "sm.com/m/src/app/database"
+	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/utils"
 )
 
-type AuthRepository struct{}
-
-func NewAuthRepository() *AuthRepository {
-	return &AuthRepository{}
+type AuthRepository struct {
+	DB database.Database
 }
 
-func (repository *AuthRepository) CreateUser(user *models.UserModel) (err error) {
-	result, err := db.Conn.Exec(`
+func NewAuthRepository(db database.Database) *AuthRepository {
+	return &AuthRepository{
+		DB: db,
+	}
+}
+
+func (r *AuthRepository) CreateUser(user *models.UserModel) (err error) {
+	result, err := r.DB.Exec(`
 		INSERT INTO user(uuid, name, email, password)
 			VALUES (UUID(), ?, ?, ?)
 	`,
@@ -42,8 +46,8 @@ func (repository *AuthRepository) CreateUser(user *models.UserModel) (err error)
 	return nil
 }
 
-func (repository *AuthRepository) LoginWithEmail(email string, password string) (*models.UserModel, error) {
-	result, err := db.Conn.Query(`
+func (r *AuthRepository) LoginWithEmail(email string, password string) (*models.UserModel, error) {
+	result, err := r.DB.Query(`
 		SELECT uuid
 		FROM user
 		WHERE email = ? AND password = ?
@@ -64,8 +68,8 @@ func (repository *AuthRepository) LoginWithEmail(email string, password string) 
 	return user, nil
 }
 
-func (repository *AuthRepository) LoginWithName(name string, password string) (*models.UserModel, error) {
-	result, err := db.Conn.Query(`
+func (r *AuthRepository) LoginWithName(name string, password string) (*models.UserModel, error) {
+	result, err := r.DB.Query(`
 		SELECT uuid
 		FROM user
 		WHERE name = ? AND password = ?

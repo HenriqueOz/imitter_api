@@ -5,17 +5,21 @@ import (
 	"strings"
 
 	apperrors "sm.com/m/src/app/app_errors"
-	db "sm.com/m/src/app/database"
+	"sm.com/m/src/app/database"
 )
 
-type BlackListRepository struct{}
-
-func NewBlackListRepository() *BlackListRepository {
-	return &BlackListRepository{}
+type BlackListRepository struct {
+	DB database.Database
 }
 
-func (repository *BlackListRepository) AddTokenToBlacklist(uuid string) error {
-	result, err := db.Conn.Exec(
+func NewBlackListRepository(db database.Database) *BlackListRepository {
+	return &BlackListRepository{
+		DB: db,
+	}
+}
+
+func (r *BlackListRepository) AddTokenToBlacklist(uuid string) error {
+	result, err := r.DB.Exec(
 		`INSERT INTO token_blacklist(token_uuid)
 			VALUES(?)`,
 		uuid,

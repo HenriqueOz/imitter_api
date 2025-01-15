@@ -2,6 +2,7 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
@@ -12,11 +13,13 @@ type UserService struct {
 
 func NewUserService() *UserService {
 	return &UserService{
-		userRepository: repositories.NewUserRepository(),
+		userRepository: repositories.NewUserRepository(
+			database.Conn,
+		),
 	}
 }
 
-func (service *UserService) UpdateUserPassword(uuid string, newPassword string, password string) error {
+func (s *UserService) UpdateUserPassword(uuid string, newPassword string, password string) error {
 	err := utils.ValidatePassword(newPassword)
 	if err != nil {
 		return err
@@ -26,7 +29,7 @@ func (service *UserService) UpdateUserPassword(uuid string, newPassword string, 
 		return apperrors.ErrNewAndOldPasswordEquals
 	}
 
-	err = service.userRepository.UpdateUserPassword(uuid, newPassword, password)
+	err = s.userRepository.UpdateUserPassword(uuid, newPassword, password)
 	if err != nil {
 		return err
 	}
@@ -34,7 +37,7 @@ func (service *UserService) UpdateUserPassword(uuid string, newPassword string, 
 	return nil
 }
 
-func (service *UserService) UpdateUserName(uuid string, name string, newName string, password string) error {
+func (s *UserService) UpdateUserName(uuid string, name string, newName string, password string) error {
 	err := utils.ValidateName(name)
 	if err != nil {
 		return err
@@ -44,7 +47,7 @@ func (service *UserService) UpdateUserName(uuid string, name string, newName str
 		return apperrors.ErrNewAndOldNameEquals
 	}
 
-	err = service.userRepository.UpdateUserName(uuid, newName, password)
+	err = s.userRepository.UpdateUserName(uuid, newName, password)
 	if err != nil {
 		return err
 	}
