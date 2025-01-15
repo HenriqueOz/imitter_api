@@ -16,9 +16,9 @@ func LogoutHandler(c *gin.Context) {
 	var err error
 
 	tokenString := strings.Split(c.GetHeader("Authorization"), " ")[1]
-	token := utils.ParseToken(tokenString)
+	token, err := utils.ParseToken(tokenString)
 
-	if token == nil {
+	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(
 			apperrors.ErrInvalidToken,
 			apperrors.ErrInvalidClaims.Error(),

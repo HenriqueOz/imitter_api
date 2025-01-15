@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func LoginHandler(c *gin.Context) {
 	err = c.ShouldBindJSON(&requestBody)
 
 	if err != nil {
+		log.Printf("%v\n", err)
 		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}

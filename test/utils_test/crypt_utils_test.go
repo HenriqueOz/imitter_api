@@ -7,7 +7,7 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func TestCryptSha256(t *testing.T) {
+func Test_CryptSha256(t *testing.T) {
 	input := "Cool String"
 	expected := "a89b5226763528f88a2a12f2804e80486d732bb2ac4f9347f58b856e1e1bd747"
 

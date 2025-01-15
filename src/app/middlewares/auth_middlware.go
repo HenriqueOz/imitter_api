@@ -36,8 +36,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		token := utils.ParseToken(splitTokenString[1])
-		if token == nil {
+		token, err := utils.ParseToken(splitTokenString[1])
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, utils.ResponseError(
 				apperrors.ErrInvalidToken,
 				apperrors.ErrInvalidClaims.Error(),

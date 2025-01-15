@@ -40,7 +40,7 @@ func ValidatePassword(password string) error {
 	if upper >= 1 && lower >= 1 && special >= 1 && number >= 1 {
 		return nil
 	}
-	return apperrors.ErrIvalidPassword
+	return apperrors.ErrInvalidPassword
 }
 
 func ValidateName(username string) error {

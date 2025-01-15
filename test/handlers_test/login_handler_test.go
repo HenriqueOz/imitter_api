@@ -30,7 +30,7 @@ type LoginMissingFieldsInput struct {
 	Error   LoginError
 }
 
-func TestLoginMissingFields(t *testing.T) {
+func Test_LoginMissingFields(t *testing.T) {
 	server := httpserver.NewServer()
 	inputs := []LoginMissingFieldsInput{
 		{

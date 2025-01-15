@@ -18,19 +18,19 @@ func GenerateJwtToken(uuid string) (string, error) {
 		"nbf": jwt.NewNumericDate(time.Now()),
 		"iat": jwt.NewNumericDate(time.Now()),
 	})
+	return SignedString(token)
+}
 
-	secret := os.Getenv("JWT_SECRET")
-	tokenString, err := token.SignedString([]byte(secret))
+func SignedString(token *jwt.Token) (string, error) {
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return "", err
 	}
-
-	return tokenString, nil
+	return tokenString, err
 }
 
 func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 	jti := id.NewString()
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss":  "temp-issuer",
 		"sub":  accessToken,
@@ -41,23 +41,29 @@ func GenerateRefreshJwtToken(uuid string, accessToken string) (string, error) {
 		"iat":  jwt.NewNumericDate(time.Now()),
 		"jti":  jti,
 	})
-
-	secret := os.Getenv("JWT_SECRET")
-	tokenString, err := token.SignedString([]byte(secret))
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
+	return SignedString(token)
 }
 
-func ParseToken(tokenString string) *jwt.Token {
+func ParseToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
 		log.Printf("Failed parsing token: %v\n", err)
-		return nil
+		return nil, err
 	}
-	return token
+	return token, nil
+}
+
+func ParseTokenWithClaims(tokenString string, claims jwt.Claims) (*jwt.Token, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+
+	if err != nil {
+		log.Printf("Failed parsing token with claims: %v\n", err)
+		return nil, err
+	}
+	return token, nil
 }
