@@ -2,20 +2,23 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
-	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
 
-type UserService struct {
-	userRepository *repositories.UserRepository
+type IUserService interface {
+	UpdateUserPassword(uuid string, newPassword string, password string) error
+	UpdateUserName(uuid string, name string, newName string, password string) error
+	DeleteUserAccount(uuid string, password string) error
 }
 
-func NewUserService() *UserService {
+type UserService struct {
+	userRepository repositories.IUserRepository
+}
+
+func NewUserService(userRepository repositories.IUserRepository) *UserService {
 	return &UserService{
-		userRepository: repositories.NewUserRepository(
-			database.Conn,
-		),
+		userRepository: userRepository,
 	}
 }
 
@@ -37,14 +40,10 @@ func (s *UserService) UpdateUserPassword(uuid string, newPassword string, passwo
 	return nil
 }
 
-func (s *UserService) UpdateUserName(uuid string, name string, newName string, password string) error {
-	err := utils.ValidateName(name)
+func (s *UserService) UpdateUserName(uuid string, newName string, password string) error {
+	err := utils.ValidateName(newName)
 	if err != nil {
 		return err
-	}
-
-	if name == newName {
-		return apperrors.ErrNewAndOldNameEquals
 	}
 
 	err = s.userRepository.UpdateUserName(uuid, newName, password)
@@ -53,4 +52,8 @@ func (s *UserService) UpdateUserName(uuid string, name string, newName string, p
 	}
 
 	return nil
+}
+
+func (s *UserService) DeleteUserAccount(uuid string, password string) error {
+	return s.userRepository.DeleteUserAccount(uuid, password)
 }

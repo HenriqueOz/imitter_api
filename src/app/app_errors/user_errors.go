@@ -10,7 +10,7 @@ import (
 var (
 	ErrInvalidPassword error = errors.New("invalid password, must be at least 8 length and contains one of each character: special, upper letter, lower letter, number")
 	ErrInvalidEmail    error = errors.New("invalid email format, ex: random.email@domain.com")
-	ErrInvalidName     error = errors.New("invalid name format, name can only contains letters, numbers and undercores")
+	ErrInvalidName     error = errors.New("invalid name format, name can only contains letters, numbers and underscores")
 
 	ErrLongPassword  error = errors.New("password too long, must be minor than " + strconv.FormatUint(constants.PASSWORD_MAX_LENGTH, 10) + " characters")
 	ErrShortPassword error = errors.New("password too short, must be at least " + strconv.FormatUint(constants.PASSWORD_MIN_LENGTH, 10) + " characters")

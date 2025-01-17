@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	apperrors "sm.com/m/src/app/app_errors"
-	"sm.com/m/src/app/services"
+	"sm.com/m/src/app/provider"
 	"sm.com/m/src/app/utils"
 )
 
@@ -15,7 +15,9 @@ type UpdatePasswordRequest struct {
 }
 
 func UpdatePasswordHandler(c *gin.Context) {
-	userService := services.NewUserService()
+	provider := provider.ServiceProvider{}
+	service := provider.NewUserService()
+
 	var requestBody UpdatePasswordRequest
 
 	err := c.ShouldBindBodyWithJSON(&requestBody)
@@ -27,7 +29,7 @@ func UpdatePasswordHandler(c *gin.Context) {
 
 	uuid := c.GetHeader("uuid")
 
-	err = userService.UpdateUserPassword(uuid, requestBody.NewPassword, requestBody.Password)
+	err = service.UpdateUserPassword(uuid, requestBody.NewPassword, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(
 			apperrors.ErrInvalidRequest,
