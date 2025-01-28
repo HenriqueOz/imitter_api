@@ -1,5 +1,4 @@
-CREATE DATABASE sm_database;
-
+CREATE DATABASE IF NOT EXISTS sm_database;
 USE sm_database;
 
 CREATE TABLE IF NOT EXISTS user (
