@@ -2,6 +2,7 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
@@ -16,9 +17,11 @@ type UserService struct {
 	userRepository repositories.IUserRepository
 }
 
-func NewUserService(userRepository repositories.IUserRepository) *UserService {
+func NewUserService() *UserService {
 	return &UserService{
-		userRepository: userRepository,
+		userRepository: repositories.NewUserRepository(
+			database.Conn,
+		),
 	}
 }
 

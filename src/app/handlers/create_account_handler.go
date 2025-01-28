@@ -18,8 +18,9 @@ type CreateAccountRequestBody struct {
 }
 
 func CreateAccountHandler(c *gin.Context) {
+	service := services.NewAuthService()
+
 	var err error
-	authService := services.NewAuthService()
 	var requestBody CreateAccountRequestBody
 
 	err = c.ShouldBindJSON(&requestBody)
@@ -29,7 +30,7 @@ func CreateAccountHandler(c *gin.Context) {
 		return
 	}
 
-	err = authService.CreateUser(&models.UserModel{
+	err = service.CreateUser(&models.UserModel{
 		Email:    requestBody.Email,
 		Name:     requestBody.Name,
 		Password: requestBody.Password,

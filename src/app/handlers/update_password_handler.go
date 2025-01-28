@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	apperrors "sm.com/m/src/app/app_errors"
-	"sm.com/m/src/app/provider"
+	"sm.com/m/src/app/services"
 	"sm.com/m/src/app/utils"
 )
 
@@ -15,8 +15,7 @@ type UpdatePasswordRequest struct {
 }
 
 func UpdatePasswordHandler(c *gin.Context) {
-	provider := provider.ServiceProvider{}
-	service := provider.NewUserService()
+	service := services.NewUserService()
 
 	var requestBody UpdatePasswordRequest
 

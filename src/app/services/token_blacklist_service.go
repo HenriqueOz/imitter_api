@@ -6,6 +6,10 @@ import (
 	"sm.com/m/src/app/repositories"
 )
 
+type IBlackListService interface {
+	AddTokenToBlacklist(uuid string) error
+}
+
 type BlackListService struct {
 	BlackListRepository *repositories.BlackListRepository
 }
