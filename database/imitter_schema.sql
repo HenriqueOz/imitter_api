@@ -3,7 +3,7 @@ USE sm_database;
 
 CREATE TABLE IF NOT EXISTS user (
 	id INT NOT NULL AUTO_INCREMENT,
-    uuid VARCHAR(36) NOT NULL
+    uuid VARCHAR(36) NOT NULL,
     name VARCHAR(15) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password TEXT NOT NULL,

@@ -11,3 +11,7 @@ RUN go build -o ../bin/api-release ./src && cp .env /bin
 
 EXPOSE 8080
 CMD [ "/bin/api-release" ]
+
+FROM mysql:latest AS mysql
+
+COPY database/imitter_schema.sql /docker-entrypoint-initdb.d/
