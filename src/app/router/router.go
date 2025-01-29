@@ -37,7 +37,7 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	posts := router.Group("/posts")
 	{
-		posts.GET("/create-post", middlewares.AuthMiddleware(), handlers.CreatePostHandler)
+		posts.POST("/create-post", middlewares.AuthMiddleware(), handlers.CreatePostHandler)
 	}
 	// GET recent post
 	// GET following posts

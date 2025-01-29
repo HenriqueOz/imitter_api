@@ -9,14 +9,14 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type DeleteAccountRequestBody struct {
+type DeleteAccountRequest struct {
 	Password string `json:"password" biding:"required"`
 }
 
 func DeleteAccoutnHandler(c *gin.Context) {
 	service := services.NewUserService()
 
-	requestBody := new(DeleteAccountRequestBody)
+	requestBody := new(DeleteAccountRequest)
 
 	err := c.ShouldBindBodyWithJSON(&requestBody)
 	if err != nil {

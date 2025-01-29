@@ -23,6 +23,8 @@ func NewServer() *Server {
 		Gin:  gin.New(),
 	}
 
+	gin.SetMode(os.Getenv("GIN_MODE"))
+
 	server.Gin.SetTrustedProxies(nil) //! Not safe
 
 	server.setMiddlewares()
@@ -53,4 +55,5 @@ func (server *Server) setRoutes() {
 	v1 := server.Gin.Group("/v1")
 	r.BindAuthRoutes(v1)
 	r.BindUserRoutes(v1)
+	r.BindPostRoutes(v1)
 }

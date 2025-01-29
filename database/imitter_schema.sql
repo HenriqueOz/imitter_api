@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS post (
 	id INT NOT NULL AUTO_INCREMENT,
     content VARCHAR(500) NOT NULL,
     date DATETIME NOT NULL,
-    user_id INT NOT NULL,
+    user_id VARCHAR(36) NOT NULL,
     PRIMARY KEY(id),
     CONSTRAINT FK_post_user FOREIGN KEY(user_id)
-        REFERENCES user(id)
+        REFERENCES user(uuid)
         ON DELETE CASCADE
 );
 

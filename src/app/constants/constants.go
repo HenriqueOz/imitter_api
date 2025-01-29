@@ -6,4 +6,6 @@ const (
 
 	PASSWORD_MIN_LENGTH uint64 = 8
 	PASSWORD_MAX_LENGTH uint64 = 72
+
+	MAX_POST_SIZE uint64 = 500
 )

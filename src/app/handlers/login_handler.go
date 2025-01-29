@@ -10,7 +10,7 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type LoginRequestBody struct {
+type LoginRequest struct {
 	Method   string `json:"method" binding:"required"`
 	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -19,7 +19,7 @@ type LoginRequestBody struct {
 func LoginHandler(c *gin.Context) {
 	var err error
 	service := services.NewAuthService()
-	var requestBody LoginRequestBody
+	var requestBody LoginRequest
 
 	err = c.ShouldBindJSON(&requestBody)
 
