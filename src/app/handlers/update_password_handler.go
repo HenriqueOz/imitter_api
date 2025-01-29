@@ -15,8 +15,6 @@ type UpdatePasswordRequest struct {
 }
 
 func UpdatePasswordHandler(c *gin.Context) {
-	service := services.NewUserService()
-
 	var requestBody UpdatePasswordRequest
 
 	err := c.ShouldBindBodyWithJSON(&requestBody)
@@ -28,6 +26,7 @@ func UpdatePasswordHandler(c *gin.Context) {
 
 	uuid := c.GetHeader("uuid")
 
+	service := services.NewUserService()
 	err = service.UpdateUserPassword(uuid, requestBody.NewPassword, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(

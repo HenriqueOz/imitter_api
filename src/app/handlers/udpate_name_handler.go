@@ -15,8 +15,6 @@ type UpdateNameRequest struct {
 }
 
 func UpdateNameHandler(c *gin.Context) {
-	service := services.NewUserService()
-
 	var requestBody UpdateNameRequest
 	err := c.ShouldBindBodyWithJSON(&requestBody)
 
@@ -27,6 +25,7 @@ func UpdateNameHandler(c *gin.Context) {
 
 	uuid := c.GetHeader("uuid")
 
+	service := services.NewUserService()
 	err = service.UpdateUserName(uuid, requestBody.NewName, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(

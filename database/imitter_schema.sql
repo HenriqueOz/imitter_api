@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS post (
     content VARCHAR(500) NOT NULL,
     date DATETIME NOT NULL,
     user_id VARCHAR(36) NOT NULL,
+    likes_count INT DEFAULT 0,
     PRIMARY KEY(id),
     CONSTRAINT FK_post_user FOREIGN KEY(user_id)
         REFERENCES user(uuid)

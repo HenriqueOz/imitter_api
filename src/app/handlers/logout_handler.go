@@ -12,7 +12,6 @@ import (
 )
 
 func LogoutHandler(c *gin.Context) {
-	blackListService := services.NewBlackListService()
 	var err error
 
 	tokenString := strings.Split(c.GetHeader("Authorization"), " ")[1]
@@ -36,7 +35,9 @@ func LogoutHandler(c *gin.Context) {
 		return
 	}
 
+	blackListService := services.NewBlackListService()
 	err = blackListService.AddTokenToBlacklist(jti.(string))
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(
 			apperrors.ErrInvalidToken,

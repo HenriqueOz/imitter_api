@@ -15,8 +15,6 @@ type CreatePostRequest struct {
 }
 
 func CreatePostHandler(c *gin.Context) {
-	service := services.NewPostService()
-
 	var err error
 	var request CreatePostRequest
 
@@ -26,6 +24,7 @@ func CreatePostHandler(c *gin.Context) {
 		return
 	}
 
+	service := services.NewPostService()
 	err = service.CreatePost(c.GetHeader("uuid"), request.Content)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(

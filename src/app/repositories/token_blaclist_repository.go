@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"log"
 	"strings"
 
@@ -23,8 +24,9 @@ func NewBlackListRepository(db database.Database) *BlackListRepository {
 }
 
 func (r *BlackListRepository) AddTokenToBlacklist(uuid string) error {
-	result, err := r.DB.Exec(
-		`INSERT INTO token_blacklist(token_uuid)
+	ctx := context.Background()
+	result, err := r.DB.ExecContext(ctx, `
+		INSERT INTO token_blacklist(token_uuid)
 			VALUES(?)`,
 		uuid,
 	)

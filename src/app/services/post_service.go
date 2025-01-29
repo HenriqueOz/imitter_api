@@ -1,9 +1,12 @@
 package services
 
 import (
+	"time"
+
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 	"sm.com/m/src/app/database"
+	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 )
 
@@ -25,4 +28,8 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 	}
 
 	return s.PostRepository.CreatePost(userUUID, content)
+}
+
+func (s *PostService) GetRecentByStartDate(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentByStartDate(startDate, userUUID)
 }

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"log"
 	"strings"
 
@@ -21,7 +22,8 @@ func NewAuthRepository(db database.Database) *AuthRepository {
 }
 
 func (r *AuthRepository) CreateUser(user *models.UserModel) (err error) {
-	result, err := r.DB.Exec(`
+	ctx := context.Background()
+	result, err := r.DB.ExecContext(ctx, `
 		INSERT INTO user(uuid, name, email, password)
 			VALUES (UUID(), ?, ?, ?)
 	`,
@@ -47,7 +49,8 @@ func (r *AuthRepository) CreateUser(user *models.UserModel) (err error) {
 }
 
 func (r *AuthRepository) LoginWithEmail(email string, password string) (*models.UserModel, error) {
-	result, err := r.DB.Query(`
+	ctx := context.Background()
+	result, err := r.DB.QueryContext(ctx, `
 		SELECT uuid
 		FROM user
 		WHERE email = ? AND password = ?
@@ -69,7 +72,8 @@ func (r *AuthRepository) LoginWithEmail(email string, password string) (*models.
 }
 
 func (r *AuthRepository) LoginWithName(name string, password string) (*models.UserModel, error) {
-	result, err := r.DB.Query(`
+	ctx := context.Background()
+	result, err := r.DB.QueryContext(ctx, `
 		SELECT uuid
 		FROM user
 		WHERE name = ? AND password = ?

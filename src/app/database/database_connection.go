@@ -41,6 +41,7 @@ func OpenConnection() error {
 	}
 
 	Conn = db
+
 	return nil
 }
 

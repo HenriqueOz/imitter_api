@@ -16,7 +16,7 @@ func (*AppRouter) BindAuthRoutes(router *gin.RouterGroup) {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/login", handlers.LoginHandler)
-		auth.POST("/create-account", handlers.CreateAccountHandler)
+		auth.POST("/create", handlers.CreateAccountHandler)
 		auth.POST("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
 		auth.POST("/logout", middlewares.AuthMiddleware(), handlers.LogoutHandler)
 		auth.GET("/test", middlewares.AuthMiddleware(), handlers.AuthTestHandler)
@@ -29,19 +29,19 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 	{
 		user.PATCH("/update-name", handlers.UpdateNameHandler)
 		user.PATCH("/update-password", handlers.UpdatePasswordHandler)
-		user.DELETE("/delete-account", handlers.DeleteAccoutnHandler)
+		user.DELETE("/delete", handlers.DeleteAccoutnHandler)
 		// TODO Upload and Download user avatar
 	}
 }
 
 func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	posts := router.Group("/posts")
+	posts.Use(middlewares.AuthMiddleware())
 	{
-		posts.POST("/create-post", middlewares.AuthMiddleware(), handlers.CreatePostHandler)
+		posts.POST("/create", handlers.CreatePostHandler)
+		posts.GET("/recent", handlers.RecentPostsHandler)
 	}
-	// GET recent post
 	// GET following posts
-	// UPDATE edit post
 	// DELETE delete post
 }
 

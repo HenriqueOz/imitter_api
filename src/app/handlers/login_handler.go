@@ -18,7 +18,6 @@ type LoginRequest struct {
 
 func LoginHandler(c *gin.Context) {
 	var err error
-	service := services.NewAuthService()
 	var requestBody LoginRequest
 
 	err = c.ShouldBindJSON(&requestBody)
@@ -29,6 +28,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
+	service := services.NewAuthService()
 	responseData, err := service.Login(requestBody.Method, requestBody.Login, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(

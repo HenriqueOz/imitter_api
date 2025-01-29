@@ -14,8 +14,6 @@ type DeleteAccountRequest struct {
 }
 
 func DeleteAccoutnHandler(c *gin.Context) {
-	service := services.NewUserService()
-
 	requestBody := new(DeleteAccountRequest)
 
 	err := c.ShouldBindBodyWithJSON(&requestBody)
@@ -26,6 +24,7 @@ func DeleteAccoutnHandler(c *gin.Context) {
 
 	uuid := c.GetHeader("uuid")
 
+	service := services.NewUserService()
 	err = service.DeleteUserAccount(uuid, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(

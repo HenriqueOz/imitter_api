@@ -18,8 +18,6 @@ type CreateAccountRequest struct {
 }
 
 func CreateAccountHandler(c *gin.Context) {
-	service := services.NewAuthService()
-
 	var err error
 	var requestBody CreateAccountRequest
 
@@ -30,6 +28,7 @@ func CreateAccountHandler(c *gin.Context) {
 		return
 	}
 
+	service := services.NewAuthService()
 	err = service.CreateUser(&models.UserModel{
 		Email:    requestBody.Email,
 		Name:     requestBody.Name,
