@@ -9,3 +9,6 @@ validações do front
 # TODO
 - Adicionar campo de data na blacklist de tokens
 - Fazer um cron para limpar os tokens já invalidos
+
+- Sistema de follow
+- Request da página de perfil de um user

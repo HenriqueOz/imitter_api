@@ -164,3 +164,7 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 
 	return nil
 }
+
+func (r *UserRepository) AddFollow(userUUID string, userToFollowUUID string) error {
+	return nil
+}
