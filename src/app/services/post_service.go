@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 	"sm.com/m/src/app/database"
@@ -28,20 +30,20 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 	return s.PostRepository.CreatePost(userUUID, content)
 }
 
-func (s *PostService) GetRecent(userUUID string, postLastId uint64) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecent(userUUID, postLastId)
+func (s *PostService) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecent(startDate, userUUID)
 }
 
-func (s *PostService) GetRecentByPostUserUUID(userUUID string, postUserUUID string, postLastId uint64) ([]models.PostModel, error) {
+func (s *PostService) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
 	if len(postUserUUID) != 36 {
 		return nil, apperrors.ErrInvalidRequest
 	}
 
-	return s.PostRepository.GetRecentByPostUserUUID(userUUID, postUserUUID, postLastId)
+	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, postUserUUID)
 }
 
-func (s *PostService) GetMyRecent(userUUID string, postLastId uint64) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentByPostUserUUID(userUUID, userUUID, postLastId)
+func (s *PostService) GetMyRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, userUUID)
 }
 
 func (s *PostService) ToogleLike(userUUID string, postId uint64) error {

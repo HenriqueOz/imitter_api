@@ -47,7 +47,7 @@ func (r *PostRepository) CreatePost(userUUID string, content string) error {
 	return nil
 }
 
-func (r *PostRepository) GetRecent(userUUID string, lastPostId uint64) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	result, err := r.DB.QueryContext(ctx, `
 		SELECT
@@ -69,11 +69,11 @@ func (r *PostRepository) GetRecent(userUUID string, lastPostId uint64) ([]models
 			user ON user.uuid = post.user_id
 		WHERE
 			user.uuid != ?
-			AND post.id < ?
+			AND post.date < ?
 		ORDER BY
 			post.date DESC
 		LIMIT 20;
-	`, userUUID, userUUID, lastPostId)
+	`, userUUID, userUUID, startDate)
 
 	if err != nil {
 		log.Printf("Failed to create post: %v\n", err)
@@ -83,7 +83,7 @@ func (r *PostRepository) GetRecent(userUUID string, lastPostId uint64) ([]models
 	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentByPostUserUUID(userUUID string, postUserUUID string, lastPostId uint64) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	result, err := r.DB.QueryContext(ctx, `
 		SELECT
@@ -105,11 +105,11 @@ func (r *PostRepository) GetRecentByPostUserUUID(userUUID string, postUserUUID s
 			user ON user.uuid = post.user_id
 		WHERE
 			user.uuid = ?
-			AND post.id > ?
+			AND post.date < ?
 		ORDER BY
 			post.date DESC
 		LIMIT 20;
-	`, userUUID, postUserUUID, lastPostId)
+	`, userUUID, postUserUUID, startDate)
 
 	if err != nil {
 		log.Printf("Failed to create post: %v\n", err)
