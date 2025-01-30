@@ -13,9 +13,11 @@ type UserAuthModel struct {
 }
 
 type PostModel struct {
+	Id       uint64 `json:"id"`
 	UserUUID string `json:"user_uuid"`
 	Content  string `json:"content"`
 	Author   string `json:"author"`
 	Date     string `json:"date"`
 	Likes    uint64 `json:"likes_count"`
+	IsLiked  bool   `json:"is_liked"`
 }

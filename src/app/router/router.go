@@ -39,7 +39,9 @@ func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	posts.Use(middlewares.AuthMiddleware())
 	{
 		posts.POST("/create", handlers.CreatePostHandler)
+		posts.POST("/like", handlers.LikeHandler)
 		posts.GET("/recent", handlers.RecentPostsHandler)
+		posts.GET("/:uuid/recent", handlers.RecentPostsByUUIDHandler)
 	}
 	// GET following posts
 	// DELETE delete post

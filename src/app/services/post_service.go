@@ -33,3 +33,15 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 func (s *PostService) GetRecentByStartDate(startDate time.Time, userUUID string) ([]models.PostModel, error) {
 	return s.PostRepository.GetRecentByStartDate(startDate, userUUID)
 }
+
+func (s *PostService) GetRecentByUserUUID(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	if len(userUUID) != 36 {
+		return nil, apperrors.ErrInvalidRequest
+	}
+
+	return s.PostRepository.GetRecentByUserUUID(startDate, userUUID)
+}
+
+func (s *PostService) ToogleLike(userUUID string, postId uint64) error {
+	return s.PostRepository.ToogleLike(userUUID, postId)
+}

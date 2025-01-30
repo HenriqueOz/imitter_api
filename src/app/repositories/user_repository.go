@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"strings"
 
@@ -16,7 +15,6 @@ type IUserRepository interface {
 	UpdateUserPassword(uuid string, newPassword string, password string) error
 	UpdateUserName(uuid string, name string, password string) error
 	DeleteUserAccount(uuid string, password string) error
-	HandleTx(tx *sql.Tx, err error) error
 }
 
 type UserRepository struct {
@@ -49,16 +47,6 @@ func (r *UserRepository) FindUserByUUIDAndPassword(uuid string, password string)
 	return true, nil
 }
 
-func (r *UserRepository) HandleTx(tx *sql.Tx, err error) error {
-	if err != nil {
-		if tx != nil {
-			tx.Rollback()
-		}
-		return err
-	}
-	return tx.Commit()
-}
-
 func (r *UserRepository) UpdateUserPassword(uuid string, newPassword string, password string) error {
 	tx, err := r.DB.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -66,30 +54,33 @@ func (r *UserRepository) UpdateUserPassword(uuid string, newPassword string, pas
 		return apperrors.ErrUnexpected
 	}
 
+	defer func() {
+		if err != nil {
+			log.Printf("Transaction rollback due to error: %v\n", err)
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	userExists, err := r.FindUserByUUIDAndPassword(uuid, password)
 	if err != nil {
-		return r.HandleTx(tx, err)
+		return err
 	}
 	if !userExists {
-		return r.HandleTx(tx, apperrors.ErrWrongPassword)
+		return apperrors.ErrWrongPassword
 	}
 
-	result, err := tx.Exec(`
+	_, err = tx.Exec(`
 		UPDATE user
 		SET password = ?
 		WHERE uuid = ?
 	`, utils.HashSha256(newPassword), uuid)
-
 	if err != nil {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
+		return apperrors.ErrUnexpected
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil || rowsAffected != 1 {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
-	}
-
-	return r.HandleTx(tx, nil)
+	return nil
 }
 
 func (r *UserRepository) UpdateUserName(uuid string, name string, password string) error {
@@ -99,15 +90,24 @@ func (r *UserRepository) UpdateUserName(uuid string, name string, password strin
 		return apperrors.ErrUnexpected
 	}
 
+	defer func() {
+		if err != nil {
+			log.Printf("Transaction rollback due to error: %v\n", err)
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	userExists, err := r.FindUserByUUIDAndPassword(uuid, password)
 	if err != nil {
-		return r.HandleTx(tx, err)
+		return err
 	}
 	if !userExists {
-		return r.HandleTx(tx, apperrors.ErrWrongPassword)
+		return apperrors.ErrWrongPassword
 	}
 
-	result, err := tx.Exec(`
+	_, err = tx.Exec(`
 		UPDATE user
 		SET name = ?
 		WHERE uuid = ?
@@ -115,18 +115,13 @@ func (r *UserRepository) UpdateUserName(uuid string, name string, password strin
 
 	if err != nil {
 		if strings.Contains(err.Error(), "user.UC_name") {
-			return r.HandleTx(tx, apperrors.ErrNameAlreadyInUse)
+			return apperrors.ErrNameAlreadyInUse
 		}
 
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
+		return apperrors.ErrUnexpected
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil || rowsAffected != 1 {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
-	}
-
-	return r.HandleTx(tx, nil)
+	return nil
 }
 
 func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
@@ -136,12 +131,21 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 		return apperrors.ErrUnexpected
 	}
 
+	defer func() {
+		if err != nil {
+			log.Printf("Transaction rollback due to error: %v\n", err)
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
 	userExists, err := r.FindUserByUUIDAndPassword(uuid, password)
 	if err != nil {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
+		return apperrors.ErrUnexpected
 	}
 	if !userExists {
-		return r.HandleTx(tx, apperrors.ErrWrongPassword)
+		return apperrors.ErrWrongPassword
 	}
 
 	result, err := tx.Exec(`
@@ -150,13 +154,13 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 	`, uuid)
 
 	if err != nil {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
+		return apperrors.ErrUnexpected
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil || rowsAffected != 1 {
-		return r.HandleTx(tx, apperrors.ErrUnexpected)
+		return apperrors.ErrUnexpected
 	}
 
-	return r.HandleTx(tx, nil)
+	return nil
 }
