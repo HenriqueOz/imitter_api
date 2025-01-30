@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	apperrors "sm.com/m/src/app/app_errors"
@@ -11,7 +11,7 @@ import (
 )
 
 func RecentPostsHandler(c *gin.Context) {
-	startDate, err := time.Parse(time.DateTime, c.Query("start_datetime"))
+	lastPostId, err := strconv.Atoi(c.Query("last_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
@@ -20,7 +20,7 @@ func RecentPostsHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecent(startDate, uuid)
+	posts, err := service.GetRecent(uuid, uint64(lastPostId))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
