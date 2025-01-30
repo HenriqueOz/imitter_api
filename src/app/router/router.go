@@ -42,6 +42,8 @@ func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 		posts.POST("/like", handlers.LikeHandler)
 		posts.GET("/recent", handlers.RecentPostsHandler)
 		posts.GET("/:uuid/recent", handlers.RecentPostsByUUIDHandler)
+		posts.GET("/me", handlers.MyRecentPostsHandler)
+		posts.DELETE("/delete", handlers.DeletePostHandler)
 	}
 	// GET following posts
 	// DELETE delete post

@@ -17,8 +17,10 @@ func RecentPostsHandler(c *gin.Context) {
 		return
 	}
 
+	uuid := c.GetHeader("uuid")
+
 	service := services.NewPostService()
-	posts, err := service.GetRecentByStartDate(startDate, c.GetHeader("uuid"))
+	posts, err := service.GetRecent(startDate, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return

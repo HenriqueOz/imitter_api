@@ -30,18 +30,30 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 	return s.PostRepository.CreatePost(userUUID, content)
 }
 
-func (s *PostService) GetRecentByStartDate(startDate time.Time, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentByStartDate(startDate, userUUID)
+func (s *PostService) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecent(startDate, userUUID)
 }
 
-func (s *PostService) GetRecentByUserUUID(startDate time.Time, userUUID string) ([]models.PostModel, error) {
-	if len(userUUID) != 36 {
+func (s *PostService) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
+	if len(postUserUUID) != 36 {
 		return nil, apperrors.ErrInvalidRequest
 	}
 
-	return s.PostRepository.GetRecentByUserUUID(startDate, userUUID)
+	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, postUserUUID)
+}
+
+func (s *PostService) GetMyRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, userUUID)
 }
 
 func (s *PostService) ToogleLike(userUUID string, postId uint64) error {
 	return s.PostRepository.ToogleLike(userUUID, postId)
+}
+
+func (s *PostService) DeletePost(postUserUUID string, userUUID string, postId uint64) error {
+	if postUserUUID != userUUID {
+		return apperrors.ErrUUIDNotMatch
+	}
+
+	return s.PostRepository.DeletePost(postId, userUUID)
 }

@@ -10,7 +10,7 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-func RecentPostsByUUIDHandler(c *gin.Context) {
+func MyRecentPostsHandler(c *gin.Context) {
 	startDate, err := time.Parse(time.DateTime, c.Query("start_datetime"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
@@ -18,10 +18,9 @@ func RecentPostsByUUIDHandler(c *gin.Context) {
 	}
 
 	uuid := c.GetHeader("uuid")
-	postUserUUID := c.Param("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.PostRepository.GetRecentByPostUserUUID(startDate, uuid, postUserUUID)
+	posts, err := service.GetMyRecent(startDate, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return

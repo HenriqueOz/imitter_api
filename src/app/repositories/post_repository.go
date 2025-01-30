@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"time"
 
@@ -46,7 +47,7 @@ func (r *PostRepository) CreatePost(userUUID string, content string) error {
 	return nil
 }
 
-func (r *PostRepository) GetRecentByStartDate(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	result, err := r.DB.QueryContext(ctx, `
 		SELECT
@@ -79,22 +80,10 @@ func (r *PostRepository) GetRecentByStartDate(startDate time.Time, userUUID stri
 		return nil, apperrors.ErrUnexpected
 	}
 
-	posts := []models.PostModel{}
-	for result.Next() {
-		p := models.PostModel{}
-		err := result.Scan(&p.Id, &p.UserUUID, &p.Author, &p.Content, &p.Date, &p.Likes, &p.IsLiked)
-
-		if err != nil {
-			return posts, apperrors.ErrUnexpected
-		}
-
-		posts = append(posts, p)
-	}
-
-	return posts, nil
+	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentByUserUUID(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	result, err := r.DB.QueryContext(ctx, `
 		SELECT
@@ -120,13 +109,17 @@ func (r *PostRepository) GetRecentByUserUUID(startDate time.Time, userUUID strin
 		ORDER BY
 			post.date DESC
 		LIMIT 20;
-	`, userUUID, userUUID, startDate)
+	`, userUUID, postUserUUID, startDate)
 
 	if err != nil {
 		log.Printf("Failed to create post: %v\n", err)
 		return nil, apperrors.ErrUnexpected
 	}
 
+	return fetchPosts(result)
+}
+
+func fetchPosts(result *sql.Rows) ([]models.PostModel, error) {
 	posts := []models.PostModel{}
 	for result.Next() {
 		p := models.PostModel{}
@@ -138,7 +131,6 @@ func (r *PostRepository) GetRecentByUserUUID(startDate time.Time, userUUID strin
 
 		posts = append(posts, p)
 	}
-
 	return posts, nil
 }
 
@@ -252,4 +244,19 @@ func (r *PostRepository) ToogleLike(userUUID string, postId uint64) error {
 	}
 
 	return apperrors.ErrUnexpected
+}
+
+func (r *PostRepository) DeletePost(postId uint64, userUUID string) error {
+	ctx := context.Background()
+
+	_, err := r.DB.ExecContext(ctx, `
+		DELETE FROM post WHERE id = ? AND user_id = ?
+	`, postId, userUUID)
+
+	if err != nil {
+		log.Printf("Error executing delete: %v\n", err)
+		return apperrors.ErrUnexpected
+	}
+
+	return nil
 }
