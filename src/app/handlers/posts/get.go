@@ -11,7 +11,7 @@ import (
 )
 
 type recentPostsRequest struct {
-	Date string `form:"date" binding:"required"`
+	ate string `form:"date" binding:"required"`
 }
 
 func MyRecentPostsHandler(c *gin.Context) {
@@ -62,6 +62,25 @@ func RecentPostsHandler(c *gin.Context) {
 
 	service := services.NewPostService()
 	posts, err := service.GetRecent(startDate, uuid)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.ResponseSuccess(posts))
+}
+
+func RecentPostsFollowingHandler(c *gin.Context) {
+
+	startDate, ok := getRecentStartTime(c)
+	if !ok {
+		return
+	}
+
+	uuid := c.GetHeader("uuid")
+
+	service := services.NewPostService()
+	posts, err := service.GetRecentFollowing(startDate, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return

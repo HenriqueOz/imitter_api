@@ -164,3 +164,12 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 
 	return nil
 }
+
+func GetUserProfileByUUID(userUUID string) error {
+
+	return nil
+}
+
+func GetUserProfileByName(userUUID string) error {
+	return nil
+}

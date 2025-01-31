@@ -33,8 +33,8 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 		userRoutes.PATCH("/update-name", user.UpdateNameHandler)
 		userRoutes.PATCH("/update-password", user.UpdatePasswordHandler)
 		userRoutes.DELETE("/delete", user.DeleteAccoutnHandler)
-		userRoutes.DELETE("/follow", user.ToogleFollowHandler)
-		// TODO Upload and Download user avatar
+		userRoutes.POST("/follow", user.ToogleFollowHandler)
+		userRoutes.GET("/:uuid/profile", user.GetUserProfileByUUIDHandler)
 	}
 }
 
@@ -44,12 +44,17 @@ func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	{
 		postsRoutes.POST("/create", posts.CreatePostHandler)
 		postsRoutes.GET("/recent", posts.RecentPostsHandler)
-		postsRoutes.POST("/like", posts.ToogleLikeHandler)
+		postsRoutes.GET("/recent/me", posts.MyRecentPostsHandler)
 		postsRoutes.GET("/:uuid/recent", posts.RecentPostsByUUIDHandler)
-		postsRoutes.GET("/me", posts.MyRecentPostsHandler)
+		postsRoutes.POST("/like", posts.ToogleLikeHandler)
+		postsRoutes.GET("/following", posts.RecentPostsFollowingHandler)
 		postsRoutes.DELETE("/delete", posts.DeletePostHandler)
 	}
-	// TODO GET following posts
 }
 
-func (*AppRouter) BindSearchRoutes(router *gin.RouterGroup) {}
+func (*AppRouter) BindSearchRoutes(router *gin.RouterGroup) {
+	searchRoutes := router.Group("search")
+	searchRoutes.Use(middlewares.AuthMiddleware())
+	{
+	}
+}

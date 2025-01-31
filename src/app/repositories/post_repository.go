@@ -136,6 +136,51 @@ func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID s
 	return fetchPosts(result)
 }
 
+func (r *PostRepository) GetRecentFollowing(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	ctx := context.Background()
+	query := `
+		SELECT
+			post.id,
+			post.user_id,
+			user.name,
+			post.content,
+			post.date,
+			post.likes_count,
+			EXISTS (
+				SELECT 1
+				FROM likes
+				WHERE likes.post_id = post.id
+				AND likes.user_id = ?
+			) AS is_liked
+		FROM
+			post
+		INNER JOIN
+			user ON user.uuid = post.user_id
+        INNER JOIN
+            follows ON follows.user_id = post.user_id
+        WHERE
+            follows.follower_id = ?
+            AND post.date < ?
+		ORDER BY
+			post.date DESC
+		LIMIT 20;
+	`
+
+	stmt, err := r.DB.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Failed to open statement: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	defer stmt.Close()
+
+	result, err := stmt.QueryContext(ctx, userUUID, userUUID, startDate)
+	if err != nil {
+		log.Printf("Failed to execute query: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	return fetchPosts(result)
+}
+
 func fetchPosts(result *sql.Rows) ([]models.PostModel, error) {
 	posts := []models.PostModel{}
 	for result.Next() {

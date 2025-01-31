@@ -46,6 +46,10 @@ func (s *PostService) GetMyRecent(startDate time.Time, userUUID string) ([]model
 	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, userUUID)
 }
 
+func (s *PostService) GetRecentFollowing(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentFollowing(startDate, userUUID)
+}
+
 func (s *PostService) ToogleLike(userUUID string, postId uint64) error {
 	return s.PostRepository.ToogleLike(userUUID, postId)
 }
