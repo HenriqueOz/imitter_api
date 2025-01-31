@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"net/http"
@@ -11,7 +11,7 @@ import (
 func RefreshHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
-	tokenPayload, err := GetTokenPayload(uuid)
+	tokenPayload, err := getTokenPayload(uuid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.ResponseError(
 			apperrors.ErrUnexpected,
@@ -23,7 +23,7 @@ func RefreshHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.ResponseSuccess(tokenPayload))
 }
 
-func GetTokenPayload(uuid string) (map[string]any, error) {
+func getTokenPayload(uuid string) (map[string]any, error) {
 	accessToken, err := utils.GenerateJwtToken(uuid)
 	if err != nil {
 		return nil, err

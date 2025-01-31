@@ -1,4 +1,4 @@
-package handlers
+package posts
 
 import (
 	"net/http"
@@ -9,14 +9,14 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type DeletePostRequest struct {
+type deletePostRequest struct {
 	PostId       uint64 `json:"id" binding:"required"`
 	PostUserUUID string `json:"user_uuid" binding:"required"`
 }
 
 func DeletePostHandler(c *gin.Context) {
 	var err error
-	var request DeletePostRequest
+	var request deletePostRequest
 
 	err = c.ShouldBindJSON(&request)
 	if err != nil {

@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"net/http"
@@ -11,7 +11,7 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type CreateAccountRequest struct {
+type createAccountRequest struct {
 	Email    string `json:"email" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -19,7 +19,7 @@ type CreateAccountRequest struct {
 
 func CreateAccountHandler(c *gin.Context) {
 	var err error
-	var requestBody CreateAccountRequest
+	var requestBody createAccountRequest
 
 	err = c.ShouldBindJSON(&requestBody)
 

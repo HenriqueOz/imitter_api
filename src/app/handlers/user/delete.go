@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"net/http"
@@ -9,15 +9,14 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type UpdateNameRequest struct {
-	Password string `json:"password" binding:"required"`
-	NewName  string `json:"new_name" binding:"required"`
+type deleteAccountRequest struct {
+	Password string `json:"password" biding:"required"`
 }
 
-func UpdateNameHandler(c *gin.Context) {
-	var requestBody UpdateNameRequest
-	err := c.ShouldBindBodyWithJSON(&requestBody)
+func DeleteAccoutnHandler(c *gin.Context) {
+	requestBody := new(deleteAccountRequest)
 
+	err := c.ShouldBindBodyWithJSON(&requestBody)
 	if err != nil {
 		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
@@ -26,7 +25,7 @@ func UpdateNameHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
 	service := services.NewUserService()
-	err = service.UpdateUserName(uuid, requestBody.NewName, requestBody.Password)
+	err = service.DeleteUserAccount(uuid, requestBody.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(
 			apperrors.ErrInvalidRequest,

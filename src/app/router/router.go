@@ -2,7 +2,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"sm.com/m/src/app/handlers"
+
+	"sm.com/m/src/app/handlers/auth"
+	"sm.com/m/src/app/handlers/posts"
+	"sm.com/m/src/app/handlers/user"
 	"sm.com/m/src/app/middlewares"
 )
 
@@ -13,40 +16,40 @@ func NewAppRouter() *AppRouter {
 }
 
 func (*AppRouter) BindAuthRoutes(router *gin.RouterGroup) {
-	auth := router.Group("/auth")
+	authRoutes := router.Group("/auth")
 	{
-		auth.POST("/login", handlers.LoginHandler)
-		auth.POST("/create", handlers.CreateAccountHandler)
-		auth.POST("/refresh", middlewares.AuthMiddleware(), handlers.RefreshHandler)
-		auth.POST("/logout", middlewares.AuthMiddleware(), handlers.LogoutHandler)
-		auth.GET("/test", middlewares.AuthMiddleware(), handlers.AuthTestHandler)
+		authRoutes.POST("/login", auth.LoginHandler)
+		authRoutes.POST("/create", auth.CreateAccountHandler)
+		authRoutes.POST("/refresh", middlewares.AuthMiddleware(), auth.RefreshHandler)
+		authRoutes.POST("/logout", middlewares.AuthMiddleware(), auth.LogoutHandler)
+		authRoutes.GET("/test", middlewares.AuthMiddleware(), auth.AuthTestHandler)
 	}
 }
 
 func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
-	user := router.Group("user")
-	user.Use(middlewares.AuthMiddleware())
+	userRoutes := router.Group("user")
+	userRoutes.Use(middlewares.AuthMiddleware())
 	{
-		user.PATCH("/update-name", handlers.UpdateNameHandler)
-		user.PATCH("/update-password", handlers.UpdatePasswordHandler)
-		user.DELETE("/delete", handlers.DeleteAccoutnHandler)
+		userRoutes.PATCH("/update-name", user.UpdateNameHandler)
+		userRoutes.PATCH("/update-password", user.UpdatePasswordHandler)
+		userRoutes.DELETE("/delete", user.DeleteAccoutnHandler)
+		userRoutes.DELETE("/follow", user.ToogleFollowHandler)
 		// TODO Upload and Download user avatar
 	}
 }
 
 func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
-	posts := router.Group("/posts")
-	posts.Use(middlewares.AuthMiddleware())
+	postsRoutes := router.Group("/posts")
+	postsRoutes.Use(middlewares.AuthMiddleware())
 	{
-		posts.POST("/create", handlers.CreatePostHandler)
-		posts.POST("/like", handlers.LikeHandler)
-		posts.GET("/recent", handlers.RecentPostsHandler)
-		posts.GET("/:uuid/recent", handlers.RecentPostsByUUIDHandler)
-		posts.GET("/me", handlers.MyRecentPostsHandler)
-		posts.DELETE("/delete", handlers.DeletePostHandler)
+		postsRoutes.POST("/create", posts.CreatePostHandler)
+		postsRoutes.GET("/recent", posts.RecentPostsHandler)
+		postsRoutes.POST("/like", posts.ToogleLikeHandler)
+		postsRoutes.GET("/:uuid/recent", posts.RecentPostsByUUIDHandler)
+		postsRoutes.GET("/me", posts.MyRecentPostsHandler)
+		postsRoutes.DELETE("/delete", posts.DeletePostHandler)
 	}
-	// GET following posts
-	// DELETE delete post
+	// TODO GET following posts
 }
 
 func (*AppRouter) BindSearchRoutes(router *gin.RouterGroup) {}
