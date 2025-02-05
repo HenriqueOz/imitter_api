@@ -9,10 +9,6 @@ import (
 	"sm.com/m/src/app/database"
 )
 
-type IBlackListRepository interface {
-	AddTokenToBlacklist(uuid string) error
-}
-
 type BlackListRepository struct {
 	DB database.Database
 }

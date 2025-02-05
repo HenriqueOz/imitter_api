@@ -11,10 +11,6 @@ import (
 	"sm.com/m/src/app/models"
 )
 
-type IPostRepository interface {
-	CreatePost(userUUID string, content string) error
-}
-
 type PostRepository struct {
 	DB database.Database
 }
@@ -24,8 +20,6 @@ func NewPostRepository(db database.Database) *PostRepository {
 		DB: db,
 	}
 }
-
-func GetUserIdByUUID(uuid string) {}
 
 func (r *PostRepository) CreatePost(userUUID string, content string) error {
 	ctx := context.Background()
@@ -47,7 +41,7 @@ func (r *PostRepository) CreatePost(userUUID string, content string) error {
 	return nil
 }
 
-func (r *PostRepository) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -69,10 +63,9 @@ func (r *PostRepository) GetRecent(startDate time.Time, userUUID string) ([]mode
 			user ON user.uuid = post.user_id
 		WHERE
 			user.uuid != ?
-			AND post.date < ?
 		ORDER BY
-			post.date DESC
-		LIMIT 20;
+			post.id DESC
+		LIMIT ? OFFSET ?;
 	`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	defer func() {
@@ -86,14 +79,14 @@ func (r *PostRepository) GetRecent(startDate time.Time, userUUID string) ([]mode
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, userUUID, startDate)
+	result, err := stmt.QueryContext(ctx, userUUID, userUUID, limit, offset)
 	if err != nil {
 		return nil, apperrors.ErrUnexpected
 	}
 	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentByPostUserUUID(limit int, offset int, userUUID string, postUserUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -115,10 +108,9 @@ func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID s
 			user ON user.uuid = post.user_id
 		WHERE
 			user.uuid = ?
-			AND post.date < ?
 		ORDER BY
-			post.date DESC
-		LIMIT 20;
+			post.id DESC
+		LIMIT ? OFFSET ?;
 	`
 
 	stmt, err := r.DB.PrepareContext(ctx, query)
@@ -128,7 +120,7 @@ func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID s
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, postUserUUID, startDate)
+	result, err := stmt.QueryContext(ctx, userUUID, postUserUUID, limit, offset)
 	if err != nil {
 		log.Printf("Failed to execute query: %v\n", err)
 		return nil, apperrors.ErrUnexpected
@@ -136,7 +128,7 @@ func (r *PostRepository) GetRecentByPostUserUUID(startDate time.Time, userUUID s
 	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentFollowing(startDate time.Time, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentFollowing(limit int, offset int, userUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -160,10 +152,9 @@ func (r *PostRepository) GetRecentFollowing(startDate time.Time, userUUID string
             follows ON follows.user_id = post.user_id
         WHERE
             follows.follower_id = ?
-            AND post.date < ?
 		ORDER BY
-			post.date DESC
-		LIMIT 20;
+			post.id DESC
+		LIMIT ? OFFSET ?;
 	`
 
 	stmt, err := r.DB.PrepareContext(ctx, query)
@@ -173,7 +164,7 @@ func (r *PostRepository) GetRecentFollowing(startDate time.Time, userUUID string
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, userUUID, startDate)
+	result, err := stmt.QueryContext(ctx, userUUID, userUUID, limit, offset)
 	if err != nil {
 		log.Printf("Failed to execute query: %v\n", err)
 		return nil, apperrors.ErrUnexpected

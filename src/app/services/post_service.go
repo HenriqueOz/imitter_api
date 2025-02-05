@@ -1,8 +1,6 @@
 package services
 
 import (
-	"time"
-
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/constants"
 	"sm.com/m/src/app/database"
@@ -30,24 +28,24 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 	return s.PostRepository.CreatePost(userUUID, content)
 }
 
-func (s *PostService) GetRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecent(startDate, userUUID)
+func (s *PostService) GetRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecent(limit, offset, userUUID)
 }
 
-func (s *PostService) GetRecentByPostUserUUID(startDate time.Time, userUUID string, postUserUUID string) ([]models.PostModel, error) {
+func (s *PostService) GetRecentByPostUserUUID(limit int, offset int, userUUID string, postUserUUID string) ([]models.PostModel, error) {
 	if len(postUserUUID) != 36 {
 		return nil, apperrors.ErrInvalidRequest
 	}
 
-	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, postUserUUID)
+	return s.PostRepository.GetRecentByPostUserUUID(limit, offset, userUUID, postUserUUID)
 }
 
-func (s *PostService) GetMyRecent(startDate time.Time, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentByPostUserUUID(startDate, userUUID, userUUID)
+func (s *PostService) GetMyRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentByPostUserUUID(limit, offset, userUUID, userUUID)
 }
 
-func (s *PostService) GetRecentFollowing(startDate time.Time, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentFollowing(startDate, userUUID)
+func (s *PostService) GetRecentFollowing(limit int, offset int, userUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentFollowing(limit, offset, userUUID)
 }
 
 func (s *PostService) ToogleLike(userUUID string, postId uint64) error {

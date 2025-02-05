@@ -2,7 +2,6 @@ package posts
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	apperrors "sm.com/m/src/app/app_errors"
@@ -11,19 +10,23 @@ import (
 )
 
 type recentPostsRequest struct {
-	ate string `form:"date" binding:"required"`
+	Limit  int `form:"limit" binding:"required"`
+	Offset int `form:"offset"`
 }
 
 func MyRecentPostsHandler(c *gin.Context) {
-	startDate, ok := getRecentStartTime(c)
-	if !ok {
+	request := recentPostsRequest{}
+
+	err := c.ShouldBindQuery(&request)
+	if err != nil {
+		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
 
 	uuid := c.GetHeader("uuid")
-
 	service := services.NewPostService()
-	posts, err := service.GetMyRecent(startDate, uuid)
+
+	posts, err := service.GetMyRecent(request.Limit, request.Offset, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
@@ -33,8 +36,11 @@ func MyRecentPostsHandler(c *gin.Context) {
 }
 
 func RecentPostsByUUIDHandler(c *gin.Context) {
-	startDate, ok := getRecentStartTime(c)
-	if !ok {
+	request := recentPostsRequest{}
+
+	err := c.ShouldBindQuery(&request)
+	if err != nil {
+		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
 
@@ -42,7 +48,7 @@ func RecentPostsByUUIDHandler(c *gin.Context) {
 	postUserUUID := c.Param("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecentByPostUserUUID(startDate, uuid, postUserUUID)
+	posts, err := service.GetRecentByPostUserUUID(request.Limit, request.Offset, uuid, postUserUUID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
@@ -52,16 +58,18 @@ func RecentPostsByUUIDHandler(c *gin.Context) {
 }
 
 func RecentPostsHandler(c *gin.Context) {
+	request := recentPostsRequest{}
 
-	startDate, ok := getRecentStartTime(c)
-	if !ok {
+	err := c.ShouldBindQuery(&request)
+	if err != nil {
+		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
 
 	uuid := c.GetHeader("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecent(startDate, uuid)
+	posts, err := service.GetRecent(request.Limit, request.Offset, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
@@ -71,38 +79,22 @@ func RecentPostsHandler(c *gin.Context) {
 }
 
 func RecentPostsFollowingHandler(c *gin.Context) {
+	request := recentPostsRequest{}
 
-	startDate, ok := getRecentStartTime(c)
-	if !ok {
+	err := c.ShouldBindQuery(&request)
+	if err != nil {
+		utils.FormatAndSendRequiredFieldsError(err, c)
 		return
 	}
 
 	uuid := c.GetHeader("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecentFollowing(startDate, uuid)
+	posts, err := service.GetRecentFollowing(request.Limit, request.Offset, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
 	}
 
 	c.JSON(http.StatusOK, utils.ResponseSuccess(posts))
-}
-
-func getRecentStartTime(c *gin.Context) (startDate time.Time, ok bool) {
-	request := recentPostsRequest{}
-
-	err := c.ShouldBindQuery(&request)
-	if err != nil {
-		utils.FormatAndSendRequiredFieldsError(err, c)
-		return time.Time{}, false
-	}
-
-	startDate, err = time.Parse(time.DateTime, c.Query("date"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
-		return time.Time{}, false
-	}
-
-	return startDate, true
 }

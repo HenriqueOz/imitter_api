@@ -12,13 +12,6 @@ import (
 	"sm.com/m/src/app/utils"
 )
 
-type IUserRepository interface {
-	FindUserByUUIDAndPassword(uuid string, password string) (bool, error)
-	UpdateUserPassword(uuid string, newPassword string, password string) error
-	UpdateUserName(uuid string, name string, password string) error
-	DeleteUserAccount(uuid string, password string) error
-}
-
 type UserRepository struct {
 	DB database.Database
 }
@@ -167,7 +160,7 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 	return nil
 }
 
-func (r *UserRepository) GetUserProfileByUUID(userUUID string, name string) ([]models.UserProfileModel, error) {
+func (r *UserRepository) GetUserProfileByName(userUUID string, name string) ([]models.UserProfileModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -220,6 +213,6 @@ func fetchUsers(result *sql.Rows) ([]models.UserProfileModel, error) {
 	return users, nil
 }
 
-func (r *UserRepository) GetUserProfileByName(userUUID string) error {
-	return nil
+func (r *UserRepository) GetUserProfileByUUID(userUUID string) ([]models.UserProfileModel, error) {
+	return nil, nil
 }

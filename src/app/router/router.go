@@ -35,6 +35,7 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 		userRoutes.DELETE("/", user.DeleteAccoutnHandler)
 		userRoutes.POST("/follow", user.ToogleFollowHandler)
 		userRoutes.GET("/:uuid", user.GetUserProfileByUUIDHandler)
+		userRoutes.GET("/search/", user.GetUserProfileByNameHandler)
 	}
 }
 

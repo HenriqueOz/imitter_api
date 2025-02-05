@@ -3,18 +3,13 @@ package services
 import (
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/database"
+	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
 	"sm.com/m/src/app/utils"
 )
 
-type IUserService interface {
-	UpdateUserPassword(uuid string, newPassword string, password string) error
-	UpdateUserName(uuid string, name string, newName string, password string) error
-	DeleteUserAccount(uuid string, password string) error
-}
-
 type UserService struct {
-	userRepository repositories.IUserRepository
+	userRepository *repositories.UserRepository
 }
 
 func NewUserService() *UserService {
@@ -59,4 +54,12 @@ func (s *UserService) UpdateUserName(uuid string, newName string, password strin
 
 func (s *UserService) DeleteUserAccount(uuid string, password string) error {
 	return s.userRepository.DeleteUserAccount(uuid, password)
+}
+
+func (s *UserService) GetUserProfileByName(userUUID string, name string) ([]models.UserProfileModel, error) {
+	return s.userRepository.GetUserProfileByName(userUUID, name)
+}
+
+func (s *UserService) GetUserProfileByUUID(userUUID string, name string) ([]models.UserProfileModel, error) {
+	return s.userRepository.GetUserProfileByUUID(userUUID)
 }
