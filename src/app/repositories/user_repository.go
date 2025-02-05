@@ -2,11 +2,13 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"strings"
 
 	apperrors "sm.com/m/src/app/app_errors"
 	"sm.com/m/src/app/database"
+	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/utils"
 )
 
@@ -165,11 +167,59 @@ func (r *UserRepository) DeleteUserAccount(uuid string, password string) error {
 	return nil
 }
 
-func GetUserProfileByUUID(userUUID string) error {
+func (r *UserRepository) GetUserProfileByUUID(userUUID string, name string) ([]models.UserProfileModel, error) {
+	ctx := context.Background()
+	query := `
+		SELECT
+			user.uuid,
+			user.name,
+			(SELECT COUNT(*) FROM follows WHERE follows.user_id = user.uuid) AS followers_count,
+			(SELECT COUNT(*) FROM follows WHERE follows.follower_id = user.uuid) AS following_count,
+			EXISTS(
+				SELECT 1
+				FROM follows
+				WHERE
+				follows.user_id = user.uuid
+				AND follows.follower_id = ?
+			) AS is_following
+		FROM
+			user
+		WHERE
+			name LIKE ?
+		ORDER BY
+			user.name ASC;
+	`
 
-	return nil
+	stmt, err := r.DB.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Failed to open statement: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	defer stmt.Close()
+
+	result, err := stmt.QueryContext(ctx, userUUID, userUUID)
+	if err != nil {
+		log.Printf("Failed to execute query: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	return fetchUsers(result)
 }
 
-func GetUserProfileByName(userUUID string) error {
+func fetchUsers(result *sql.Rows) ([]models.UserProfileModel, error) {
+	users := []models.UserProfileModel{}
+	for result.Next() {
+		p := models.UserProfileModel{}
+		err := result.Scan(&p.Uuid, &p.Name, &p.FollowersCount, &p.FollowingCount, &p.IsFollowing)
+
+		if err != nil {
+			return users, apperrors.ErrUnexpected
+		}
+
+		users = append(users, p)
+	}
+	return users, nil
+}
+
+func (r *UserRepository) GetUserProfileByName(userUUID string) error {
 	return nil
 }

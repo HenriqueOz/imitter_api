@@ -1,8 +1,6 @@
 services:
   database:
-      build:
-        context: .
-        target: mysql
+      image: mysql:8.0.40-oracle
       container_name: mysql_db
       hostname: mysql_db
       ports:
@@ -12,36 +10,36 @@ services:
         MYSQL_PASSWORD: '${DB_PASSWORD}'
         MYSQL_DATABASE: '${DB_NAME}'
       volumes:
-          - ./db:/var/lib/mysql
-      # user: "1000:1000"
+          - ./database/imitter_schema.sql:/docker-entrypoint-initdb.d/imitter_schema.sql
+          - ./db_data:/var/lib/mysql
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
+
       networks:
         - connection
-      healthcheck:
-        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "--password=${DB_PASSWORD}"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
 
   api:
     container_name: imitter_api
     build:
       context: .
-      target: api
-    volumes:
-      - ./:/usr/api
+      dockerfile: Dockerfile
     ports:
       - 8080:8080
     networks:
         - connection
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       database:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+volumes:
+  db_data:
 
 networks:
   connection:
-    name: connection
 
 
 

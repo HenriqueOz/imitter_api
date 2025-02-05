@@ -1,0 +1,22 @@
+services:
+   api:
+    container_name: imitter_api_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8080:8080
+      - 2345:2345
+    volumes:
+      - ./src:/app/src
+      - ./go.mod:/app/go.mod
+      - ./go.sum:/app/go.sum
+      - .env:/app/.env
+    networks:
+        - connection
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      database:
+        condition: service_healthy
+

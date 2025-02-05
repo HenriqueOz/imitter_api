@@ -1,0 +1,18 @@
+FROM golang:1.23.4 AS dev
+
+WORKDIR /app
+
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+VOLUME [ "/app" ]
+
+RUN addgroup appgroup && adduser --ingroup appgroup appuser
+RUN chown -R appuser:appgroup  /app
+USER appuser
+
+EXPOSE 8080
+
+CMD ["go", "run", "./src/main.go"]

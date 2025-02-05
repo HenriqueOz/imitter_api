@@ -30,11 +30,11 @@ func (*AppRouter) BindUserRoutes(router *gin.RouterGroup) {
 	userRoutes := router.Group("user")
 	userRoutes.Use(middlewares.AuthMiddleware())
 	{
-		userRoutes.PATCH("/update-name", user.UpdateNameHandler)
-		userRoutes.PATCH("/update-password", user.UpdatePasswordHandler)
-		userRoutes.DELETE("/delete", user.DeleteAccoutnHandler)
+		userRoutes.PATCH("/name", user.UpdateNameHandler)
+		userRoutes.PATCH("/password", user.UpdatePasswordHandler)
+		userRoutes.DELETE("/", user.DeleteAccoutnHandler)
 		userRoutes.POST("/follow", user.ToogleFollowHandler)
-		userRoutes.GET("/:uuid/profile", user.GetUserProfileByUUIDHandler)
+		userRoutes.GET("/:uuid", user.GetUserProfileByUUIDHandler)
 	}
 }
 
@@ -42,13 +42,15 @@ func (*AppRouter) BindPostRoutes(router *gin.RouterGroup) {
 	postsRoutes := router.Group("/posts")
 	postsRoutes.Use(middlewares.AuthMiddleware())
 	{
-		postsRoutes.POST("/create", posts.CreatePostHandler)
-		postsRoutes.GET("/recent", posts.RecentPostsHandler)
-		postsRoutes.GET("/recent/me", posts.MyRecentPostsHandler)
-		postsRoutes.GET("/:uuid/recent", posts.RecentPostsByUUIDHandler)
+		postsRoutes.POST("/", posts.CreatePostHandler)
 		postsRoutes.POST("/like", posts.ToogleLikeHandler)
+
+		postsRoutes.GET("/", posts.RecentPostsHandler)
+		postsRoutes.GET("/me", posts.MyRecentPostsHandler)
+		postsRoutes.GET("/:uuid", posts.RecentPostsByUUIDHandler)
 		postsRoutes.GET("/following", posts.RecentPostsFollowingHandler)
-		postsRoutes.DELETE("/delete", posts.DeletePostHandler)
+
+		postsRoutes.DELETE("/", posts.DeletePostHandler)
 	}
 }
 

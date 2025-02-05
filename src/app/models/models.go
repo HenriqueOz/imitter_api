@@ -21,3 +21,11 @@ type PostModel struct {
 	Likes    uint64 `json:"likes_count"`
 	IsLiked  bool   `json:"is_liked"`
 }
+
+type UserProfileModel struct {
+	Uuid           string `json:"uuid"`
+	Name           string `json:"name"`
+	FollowersCount uint64 `json:"followers_count"`
+	FollowingCount uint64 `json:"following_count"`
+	IsFollowing    bool   `json:"is_following"`
+}
