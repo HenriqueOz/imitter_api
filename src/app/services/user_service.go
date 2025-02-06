@@ -2,6 +2,7 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/constants"
 	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/models"
 	"sm.com/m/src/app/repositories"
@@ -61,5 +62,9 @@ func (s *UserService) GetUserProfileByName(userUUID string, name string) ([]mode
 }
 
 func (s *UserService) GetUserProfileByUUID(userUUID string, name string) ([]models.UserProfileModel, error) {
+	if len(userUUID) != int(constants.UUID_LENGTH) {
+		return nil, apperrors.ErrInvalidRequest
+	}
+
 	return s.userRepository.GetUserProfileByUUID(userUUID)
 }

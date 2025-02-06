@@ -2,6 +2,7 @@ package services
 
 import (
 	apperrors "sm.com/m/src/app/app_errors"
+	"sm.com/m/src/app/constants"
 	"sm.com/m/src/app/database"
 	"sm.com/m/src/app/repositories"
 )
@@ -23,7 +24,7 @@ func NewBlackListService() *BlackListService {
 }
 
 func (s *BlackListService) AddTokenToBlacklist(uuid string) error {
-	if len(uuid) != 36 {
+	if len(uuid) != int(constants.UUID_LENGTH) {
 		return apperrors.ErrInvalidClaims
 	}
 

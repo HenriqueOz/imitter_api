@@ -8,4 +8,6 @@ const (
 	PASSWORD_MAX_LENGTH uint64 = 72
 
 	MAX_POST_SIZE uint64 = 500
+
+	UUID_LENGTH uint64 = 36
 )

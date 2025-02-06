@@ -33,7 +33,7 @@ func (s *PostService) GetRecent(limit int, offset int, userUUID string) ([]model
 }
 
 func (s *PostService) GetRecentByPostUserUUID(limit int, offset int, userUUID string, postUserUUID string) ([]models.PostModel, error) {
-	if len(postUserUUID) != 36 {
+	if len(postUserUUID) != int(constants.UUID_LENGTH) {
 		return nil, apperrors.ErrInvalidRequest
 	}
 
