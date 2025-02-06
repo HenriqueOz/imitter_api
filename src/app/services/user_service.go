@@ -61,10 +61,10 @@ func (s *UserService) GetUserProfileByName(userUUID string, name string) ([]mode
 	return s.userRepository.GetUserProfileByName(userUUID, name)
 }
 
-func (s *UserService) GetUserProfileByUUID(userUUID string, name string) ([]models.UserProfileModel, error) {
-	if len(userUUID) != int(constants.UUID_LENGTH) {
-		return nil, apperrors.ErrInvalidRequest
+func (s *UserService) GetUserProfileByUUID(userUUID string, searchUUID string) ([]models.UserProfileModel, error) {
+	if len(searchUUID) != int(constants.UUID_LENGTH) {
+		return nil, apperrors.ErrInvalidUUIDFormat
 	}
 
-	return s.userRepository.GetUserProfileByUUID(userUUID)
+	return s.userRepository.GetUserProfileByUUID(userUUID, searchUUID)
 }

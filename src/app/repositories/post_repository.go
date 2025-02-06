@@ -41,7 +41,7 @@ func (r *PostRepository) CreatePost(userUUID string, content string) error {
 	return nil
 }
 
-func (r *PostRepository) GetRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentGlobal(limit int, offset int, myUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -79,14 +79,14 @@ func (r *PostRepository) GetRecent(limit int, offset int, userUUID string) ([]mo
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, userUUID, limit, offset)
+	result, err := stmt.QueryContext(ctx, myUUID, myUUID, limit, offset)
 	if err != nil {
 		return nil, apperrors.ErrUnexpected
 	}
 	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentByPostUserUUID(limit int, offset int, userUUID string, postUserUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentByPostOwnerUUID(limit int, offset int, myUUID string, ownerUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -120,7 +120,7 @@ func (r *PostRepository) GetRecentByPostUserUUID(limit int, offset int, userUUID
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, postUserUUID, limit, offset)
+	result, err := stmt.QueryContext(ctx, myUUID, ownerUUID, limit, offset)
 	if err != nil {
 		log.Printf("Failed to execute query: %v\n", err)
 		return nil, apperrors.ErrUnexpected
@@ -128,7 +128,7 @@ func (r *PostRepository) GetRecentByPostUserUUID(limit int, offset int, userUUID
 	return fetchPosts(result)
 }
 
-func (r *PostRepository) GetRecentFollowing(limit int, offset int, userUUID string) ([]models.PostModel, error) {
+func (r *PostRepository) GetRecentFollowing(limit int, offset int, myUUID string) ([]models.PostModel, error) {
 	ctx := context.Background()
 	query := `
 		SELECT
@@ -164,7 +164,7 @@ func (r *PostRepository) GetRecentFollowing(limit int, offset int, userUUID stri
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, userUUID, limit, offset)
+	result, err := stmt.QueryContext(ctx, myUUID, myUUID, limit, offset)
 	if err != nil {
 		log.Printf("Failed to execute query: %v\n", err)
 		return nil, apperrors.ErrUnexpected

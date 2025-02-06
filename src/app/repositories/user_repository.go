@@ -178,7 +178,7 @@ func (r *UserRepository) GetUserProfileByName(userUUID string, name string) ([]m
 		FROM
 			user
 		WHERE
-			name LIKE ?
+			user.name LIKE CONCAT(?, '%')
 		ORDER BY
 			user.name ASC;
 	`
@@ -190,7 +190,7 @@ func (r *UserRepository) GetUserProfileByName(userUUID string, name string) ([]m
 	}
 	defer stmt.Close()
 
-	result, err := stmt.QueryContext(ctx, userUUID, userUUID)
+	result, err := stmt.QueryContext(ctx, userUUID, name)
 	if err != nil {
 		log.Printf("Failed to execute query: %v\n", err)
 		return nil, apperrors.ErrUnexpected
@@ -213,6 +213,40 @@ func fetchUsers(result *sql.Rows) ([]models.UserProfileModel, error) {
 	return users, nil
 }
 
-func (r *UserRepository) GetUserProfileByUUID(userUUID string) ([]models.UserProfileModel, error) {
-	return nil, nil
+func (r *UserRepository) GetUserProfileByUUID(userUUID string, searchUUID string) ([]models.UserProfileModel, error) {
+	ctx := context.Background()
+	query := `
+		SELECT
+			user.uuid,
+			user.name,
+			(SELECT COUNT(*) FROM follows WHERE follows.user_id = user.uuid) AS followers_count,
+			(SELECT COUNT(*) FROM follows WHERE follows.follower_id = user.uuid) AS following_count,
+			EXISTS(
+				SELECT 1
+				FROM follows
+				WHERE
+				follows.user_id = user.uuid
+				AND follows.follower_id = ?
+			) AS is_following
+		FROM
+			user
+		WHERE
+			user.uuid = ?
+		ORDER BY
+			user.name ASC;
+	`
+
+	stmt, err := r.DB.PrepareContext(ctx, query)
+	if err != nil {
+		log.Printf("Failed to open statement: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	defer stmt.Close()
+
+	result, err := stmt.QueryContext(ctx, userUUID, searchUUID)
+	if err != nil {
+		log.Printf("Failed to execute query: %v\n", err)
+		return nil, apperrors.ErrUnexpected
+	}
+	return fetchUsers(result)
 }

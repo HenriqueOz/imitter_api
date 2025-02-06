@@ -48,7 +48,7 @@ func RecentPostsByUUIDHandler(c *gin.Context) {
 	postUserUUID := c.Param("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecentByPostUserUUID(request.Limit, request.Offset, uuid, postUserUUID)
+	posts, err := service.GetRecentByPostOwnerUUID(request.Limit, request.Offset, uuid, postUserUUID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return
@@ -69,7 +69,7 @@ func RecentPostsHandler(c *gin.Context) {
 	uuid := c.GetHeader("uuid")
 
 	service := services.NewPostService()
-	posts, err := service.GetRecent(request.Limit, request.Offset, uuid)
+	posts, err := service.GetRecentGlobal(request.Limit, request.Offset, uuid)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, utils.ResponseError(apperrors.ErrInvalidRequest, err.Error()))
 		return

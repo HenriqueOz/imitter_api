@@ -25,7 +25,7 @@ func NewBlackListService() *BlackListService {
 
 func (s *BlackListService) AddTokenToBlacklist(uuid string) error {
 	if len(uuid) != int(constants.UUID_LENGTH) {
-		return apperrors.ErrInvalidClaims
+		return apperrors.ErrInvalidUUIDFormat
 	}
 
 	return s.BlackListRepository.AddTokenToBlacklist(uuid)

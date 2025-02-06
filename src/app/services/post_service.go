@@ -28,24 +28,24 @@ func (s *PostService) CreatePost(userUUID string, content string) error {
 	return s.PostRepository.CreatePost(userUUID, content)
 }
 
-func (s *PostService) GetRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecent(limit, offset, userUUID)
+func (s *PostService) GetRecentGlobal(limit int, offset int, myUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentGlobal(limit, offset, myUUID)
 }
 
-func (s *PostService) GetRecentByPostUserUUID(limit int, offset int, userUUID string, postUserUUID string) ([]models.PostModel, error) {
-	if len(postUserUUID) != int(constants.UUID_LENGTH) {
-		return nil, apperrors.ErrInvalidRequest
+func (s *PostService) GetRecentByPostOwnerUUID(limit int, offset int, myUUID string, ownerUUID string) ([]models.PostModel, error) {
+	if len(ownerUUID) != int(constants.UUID_LENGTH) {
+		return nil, apperrors.ErrInvalidUUIDFormat
 	}
 
-	return s.PostRepository.GetRecentByPostUserUUID(limit, offset, userUUID, postUserUUID)
+	return s.PostRepository.GetRecentByPostOwnerUUID(limit, offset, myUUID, ownerUUID)
 }
 
 func (s *PostService) GetMyRecent(limit int, offset int, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentByPostUserUUID(limit, offset, userUUID, userUUID)
+	return s.PostRepository.GetRecentByPostOwnerUUID(limit, offset, userUUID, userUUID)
 }
 
-func (s *PostService) GetRecentFollowing(limit int, offset int, userUUID string) ([]models.PostModel, error) {
-	return s.PostRepository.GetRecentFollowing(limit, offset, userUUID)
+func (s *PostService) GetRecentFollowing(limit int, offset int, myUUID string) ([]models.PostModel, error) {
+	return s.PostRepository.GetRecentFollowing(limit, offset, myUUID)
 }
 
 func (s *PostService) ToogleLike(userUUID string, postId uint64) error {

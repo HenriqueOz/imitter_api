@@ -22,10 +22,12 @@ var (
 	ErrNameAlreadyInUse  error = errors.New("name already in use")
 
 	ErrWrongLogin              error = errors.New("wrong login or password")
-	ErrWrongPassword           error = errors.New("Wrong password")
+	ErrWrongPassword           error = errors.New("wrong password")
 	ErrCreatingUser            error = errors.New("failed to create user")
-	ErrUserNotFound            error = errors.New("Could not find the user")
+	ErrUserNotFound            error = errors.New("could not find the user")
 	ErrLogin                   error = errors.New("failed to login")
 	ErrNewAndOldPasswordEquals error = errors.New("new password can't be equals to the current password")
 	ErrNewAndOldNameEquals     error = errors.New("new name can't be equals to the current name")
+
+	ErrInvalidUUIDFormat error = errors.New("invalid uuid format")
 )
