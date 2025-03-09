@@ -1,12 +1,16 @@
 services:
-   api:
+  database:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  api:
     container_name: imitter_api_dev
     build:
       context: .
       dockerfile: Dockerfile.dev
     ports:
       - 8080:8080
-      - 2345:2345
+      - 4000:4000
     volumes:
       - ./src:/app/src
       - ./go.mod:/app/go.mod

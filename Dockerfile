@@ -1,4 +1,4 @@
-FROM golang:1.23.4 AS api-build-stage
+FROM golang:1.24.1 AS api-build-stage
 
 WORKDIR /app
 

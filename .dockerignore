@@ -1,5 +1,5 @@
 /db
 *.md
 .env.example
-Dockerfile
-compose.yaml
+Dockerfile*
+*compose.yaml

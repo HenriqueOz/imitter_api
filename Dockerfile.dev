@@ -1,4 +1,4 @@
-FROM golang:1.23.4 AS dev
+FROM golang:1.24.1 AS build-stage
 
 WORKDIR /app
 
@@ -7,12 +7,23 @@ RUN go install github.com/go-delve/delve/cmd/dlv@latest
 COPY go.mod go.sum ./
 RUN go mod download
 
-VOLUME [ "/app" ]
+COPY src ./src/
+COPY .env ./
+
+RUN go build -gcflags="all=-N -l" -o /api ./src
+
+FROM debian:latest
+
+WORKDIR /
+
+COPY --from=build-stage /go/bin/dlv /
+COPY --from=build-stage /api /
+COPY --from=build-stage /app/.env /
 
 RUN addgroup appgroup && adduser --ingroup appgroup appuser
-RUN chown -R appuser:appgroup  /app
+RUN chown -R appuser:appgroup  /api
 USER appuser
 
-EXPOSE 8080
+EXPOSE 4000 8080
 
-CMD ["go", "run", "./src/main.go"]
+CMD ["/dlv", "--listen=:4000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/api"]
