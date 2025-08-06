@@ -1,11 +1,18 @@
-# Imitter
+# Imitter (Unfinished)
+**I will finish this project when I have some time free from study and work, since this is for hobby purposes**
 
-Imitter is a joke with "twitter", just flip the "w" and think of the first "t" as an I
+Imitter is a joke with "twitter", just flip the "w" and replace the first "t" for an "I"
 
 This project is an API for a social media application.
 
-The main features are:
+**The main features are:**
 - Login/Singup
 - JWT with refresh token for validation
-- Account infomartion edition
-- API errors with the correct messages
+- Social basic interactions (like and comments)
+
+**Technologies:**
+- Golang
+- Gin (API framework)
+- Docker
+
+
